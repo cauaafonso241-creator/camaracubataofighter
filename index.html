@@ -107,6 +107,41 @@
     </div>
   </section>
 
+  <div id="pauseOverlay" class="pause-overlay hidden">
+    <div class="pause-card">
+      <p class="pause-kicker">PARTIDA PAUSADA</p>
+      <h2>PAUSADO</h2>
+      <p>Escolha uma opção.</p>
+      <div class="pause-actions">
+        <button id="resumeBtn" class="primary">CONTINUAR</button>
+        <button id="pauseControlsBtn" class="secondary">VER CONTROLES</button>
+        <button id="pauseMenuBtn" class="secondary danger">VOLTAR AO MENU</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="controlsOverlay" class="pause-overlay hidden">
+    <div class="pause-card controls-card">
+      <p class="pause-kicker">GUIA RÁPIDO</p>
+      <h2>CONTROLES</h2>
+      <div class="controls-list">
+        <div><span class="control-keys"><kbd>A</kbd><kbd>D</kbd></span><span>Mover</span></div>
+        <div><span class="control-keys"><kbd>W</kbd></span><span>Pular</span></div>
+        <div><span class="control-keys"><kbd>S</kbd></span><span>Defender</span></div>
+        <div><span class="control-keys"><kbd>J</kbd></span><span>Soco</span></div>
+        <div><span class="control-keys"><kbd>K</kbd></span><span>Chute</span></div>
+        <div><span class="control-keys"><kbd>L</kbd></span><span>Especial</span></div>
+        <div><span class="control-keys"><kbd>D</kbd><kbd>D</kbd></span><span>Dash para frente</span></div>
+        <div><span class="control-keys"><kbd>A</kbd><kbd>A</kbd></span><span>Dash para trás</span></div>
+        <div class="wide-control"><span class="control-keys"><kbd>S</kbd> → <kbd>D</kbd> + <kbd>J</kbd>/<kbd>K</kbd></span><span>¼ de lua + ataque</span></div>
+      </div>
+      <div class="pause-actions">
+        <button id="backToPauseBtn" class="secondary">VOLTAR AO PAUSE</button>
+        <button id="closeControlsBtn" class="primary">CONTINUAR</button>
+      </div>
+    </div>
+  </div>
+
   <div id="modal" class="modal">
     <div class="modal-card"><p id="modalKicker">RESULTADO</p><h2 id="modalTitle"></h2><p id="modalText"></p>
       <div><button id="rematch" class="primary">REVANCHE</button><button class="secondary" data-go="select">TROCAR LUTADOR</button></div>
