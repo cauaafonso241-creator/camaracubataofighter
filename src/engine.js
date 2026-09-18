@@ -440,7 +440,7 @@ export class GameEngine{
     this.pushActors(att,def,m.pushHit||1.2);this.hitstop=m.hitstop;this.spark(def,m.kind.includes("super")?"super":m.damage>=80?"heavy":"light");
     this.audio.play(m.damage>=80?"hitHeavy":"hitLight");
     if(wasAttacking){document.querySelector("#counterText").textContent="COUNTER!";setTimeout(()=>document.querySelector("#counterText").textContent="",420)}
-    if(att.comboCount>=2){const el=document.querySelector("#comboText");el.textContent=att.comboCount+" HIT COMBO!";setTimeout(()=>{if(el.textContent.includes("HIT"))el.textContent=""},520)}
+    if(att.comboCount>=2){const el=document.querySelector("#comboText");el.style.left=att.side==="p1"?"6%":"auto";el.style.right=att.side==="p2"?"6%":"auto";el.textContent=att.comboCount+" HIT COMBO!";setTimeout(()=>{if(el.textContent.includes("HIT"))el.textContent=""},520)}
     if(def.hp<=0){if(this.mode==="training"){def.hp=1000;def.redHp=1000}else this.beginKO(att,def)}
   }
   applyThrow(att,def,m){
