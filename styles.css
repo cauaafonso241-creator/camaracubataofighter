@@ -234,7 +234,7 @@ kbd{display:inline-grid;place-items:center;min-width:31px;height:31px;margin:0 3
 .prop-process{left:120px;top:130px;width:54px;height:70px;background:#f6f3df;border:3px solid #202937;transform:rotate(8deg);padding-top:9px;text-align:center;color:#18202a;font:bold 10px Inter}.prop-process i{display:block;width:34px;height:2px;background:#68717a;margin:7px auto 0}
 .prop-water{left:122px;top:129px;width:48px;height:67px;border:4px solid #1c5f9b;border-radius:14px 14px 18px 18px;background:linear-gradient(#9ce6ff99,#3f9be3cc)}.gallon-handle{position:absolute;left:12px;top:-13px;width:20px;height:18px;border:4px solid #1c5f9b;border-bottom:0;border-radius:8px 8px 0 0}.gallon-cap{position:absolute;left:17px;top:-19px;width:12px;height:7px;background:#1a67a8}
 .prop-dumbbell{left:105px;top:148px;width:89px;height:30px;transform:rotate(-12deg)}.db-bar{position:absolute;left:20px;top:11px;width:50px;height:8px;background:#aab4bf;border:2px solid #27323c}.db-left,.db-right{position:absolute;top:2px;width:22px;height:26px;background:#202832;border:3px solid #07101b;border-radius:5px}.db-left{left:0}.db-right{right:0}
-.prop-ball{left:130px;top:141px;font-size:42px;line-height:1}
+.prop-ball{left:130px;top:141px;width:42px;height:42px}.prop-ball i{position:absolute;inset:0;border:4px solid #0b0d12;border-radius:50%;background:radial-gradient(circle at 50% 48%,#111 0 15%,transparent 16%),conic-gradient(from 18deg,#f5f5ed 0 13%,#202127 14% 25%,#f5f5ed 26% 45%,#202127 46% 58%,#f5f5ed 59% 77%,#202127 78% 88%,#f5f5ed 89%)}
 .fighter.specialFx .fighter-prop{animation:propSwing .16s ease-in-out 3 alternate}
 @keyframes propSwing{from{transform:rotate(-14deg) scale(1)}to{transform:rotate(12deg) scale(1.08)}}
 
