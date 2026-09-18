@@ -202,7 +202,14 @@ export class GameEngine{
       <div class="leg leg-front"><span class="thigh"></span><span class="calf"></span><span class="shoe"></span></div>
       <div class="torso"><span class="jacket-lapel lapel-left"></span><span class="jacket-lapel lapel-right"></span><span class="shirt"></span><span class="tie"></span></div>
       <div class="arm arm-back"><span class="upper"></span><span class="forearm"></span><span class="hand"></span></div>
-      <div class="head"><div class="face-frame"><img src="${f.portrait}" alt="${f.name}"></div></div>
+      <div class="head drawn-head hair-${f.look?.hairStyle||"short"} beard-${f.look?.beardStyle||"none"} ${f.look?.glasses?"has-glasses":""}" style="--skin:${f.look?.skin||"#b97a58"};--hair:${f.look?.hair||"#222"};--beard:${f.look?.beard||f.look?.hair||"#222"}">
+        <span class="ear ear-left"></span><span class="ear ear-right"></span>
+        <span class="hair-shape"></span>
+        <span class="brow brow-left"></span><span class="brow brow-right"></span>
+        <span class="eye eye-left"></span><span class="eye eye-right"></span>
+        <span class="nose"></span><span class="mouth"></span><span class="beard-shape"></span>
+        <span class="glasses-frame glasses-left"></span><span class="glasses-frame glasses-right"></span><span class="glasses-bridge"></span>
+      </div>
       <div class="arm arm-front"><span class="upper"></span><span class="forearm"></span><span class="hand"></span></div>
       ${this.propMarkup(f)}</div>`;
   }
