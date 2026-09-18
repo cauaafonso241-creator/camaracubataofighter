@@ -172,7 +172,12 @@ export class UIController{
     }
   }
   hideResult(){$("#modal").classList.remove("show")}
-  togglePause(){if(this.currentScreen()!=="arena"||!this.engine.running||this.engine.matchOver)return;if(this.engine.paused)this.closePause();else this.openPause()}
+  togglePause(){
+    if(this.currentScreen()!=="arena"||!this.engine.running||this.engine.matchOver)return;
+    if(!$("#confirmOverlay").classList.contains("hidden")){$("#confirmNo").click();return}
+    if(!$("#controlsOverlay").classList.contains("hidden")||!$("#quickSettingsOverlay").classList.contains("hidden")){this.backToPause();return}
+    if(this.engine.paused)this.closePause();else this.openPause();
+  }
   openPause(){if(!this.engine.running)return;this.engine.pause(true);$("#pauseOverlay").classList.remove("hidden");$("#controlsOverlay").classList.add("hidden");$("#quickSettingsOverlay").classList.add("hidden")}
   closePause(){this.hideOverlays();this.engine.pause(false)}
   openPauseControls(){$("#pauseOverlay").classList.add("hidden");$("#controlsOverlay").classList.remove("hidden")}
