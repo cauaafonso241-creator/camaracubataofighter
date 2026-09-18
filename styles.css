@@ -3,7 +3,7 @@
   --cyan:#72e7ff;--wine:#8c2030;--danger:#b83b4a;--text:#f5f8ff;--muted:#8fa8c6;--shadow:#0009;
   --stage-floor:18%;
 }
-*{box-sizing:border-box}
+*{box-sizing:border-box}.svg-defs{position:absolute;width:0;height:0;overflow:hidden}
 html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;overflow-x:hidden}
 body{min-height:100vh;min-height:100dvh}
 button,select,input{font:inherit}
@@ -187,8 +187,8 @@ kbd{display:inline-grid;place-items:center;min-width:31px;height:31px;margin:0 3
 .fighter.walking .fighter-rig{animation:fighterWalk .26s ease-in-out infinite alternate}
 @keyframes fighterWalk{from{transform:translateY(0) rotate(-1deg)}to{transform:translateY(-5px) rotate(1deg)}}
 .head{position:absolute;z-index:8;top:13px;left:67px;width:88px;height:90px;transform:rotate(-2deg)}
-.face-frame{width:88px;height:90px;overflow:hidden;border:4px solid #07101b;border-radius:44% 44% 48% 48%;background:#c58b67;box-shadow:0 4px 0 #0007,inset 0 -7px #0002}
-.face-frame img{width:118%;height:118%;object-fit:cover;object-position:center 16%;transform:translate(-8%,-5%);filter:saturate(.96) contrast(1.16) brightness(.98)}
+.face-frame{width:88px;height:90px;overflow:hidden;border:0;border-radius:44% 44% 42% 42%;background:#c58b67;box-shadow:0 4px 0 #0007,inset 0 0 0 3px #07101b,inset 0 -9px #0002}
+.face-frame img{width:118%;height:118%;object-fit:cover;object-position:center 16%;transform:translate(-8%,-5%);filter:url(#arcadePortraitFilter) contrast(1.12) brightness(1.02);-webkit-mask-image:radial-gradient(ellipse at 50% 47%,#000 0 57%,#000 65%,transparent 76%);mask-image:radial-gradient(ellipse at 50% 47%,#000 0 57%,#000 65%,transparent 76%);image-rendering:auto}
 .torso{position:absolute;z-index:5;top:88px;left:50px;width:122px;height:118px;background:linear-gradient(90deg,#0b1422 0 10%,var(--fighter-color) 20% 80%,#08111e 90%);border:4px solid #07101b;border-radius:20px 20px 12px 12px;clip-path:polygon(9% 0,91% 0,100% 16%,93% 100%,7% 100%,0 16%);box-shadow:inset 10px 0 #ffffff10,inset -10px 0 #0005}
 .torso .shirt{position:absolute;left:44px;top:1px;width:35px;height:69px;background:#eef2f6;clip-path:polygon(0 0,100% 0,72% 100%,28% 100%)}
 .torso .tie{position:absolute;left:55px;top:24px;width:13px;height:55px;background:#9e1c24;clip-path:polygon(50% 0,100% 15%,72% 100%,28% 100%,0 15%)}
