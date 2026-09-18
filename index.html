@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#07101f">
+<title>Câmara Cubatão Fighter</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <section id="home" class="screen active">
+    <div class="scanlines"></div>
+    <div class="hero">
+      <div class="seal">CCF</div>
+      <p class="eyebrow">EDIÇÃO CUBATÃO • ARCADE</p>
+      <h1>CÂMARA<br><span>CUBATÃO</span> FIGHTER</h1>
+      <p class="tagline">Escolha seu parlamentar. Entre na arena. Vença no debate mais explosivo da Baixada.</p>
+      <div class="home-actions">
+        <button class="primary" data-go="select">JOGAR AGORA</button>
+        <button class="secondary" data-go="how">COMO JOGAR</button>
+      </div>
+      <p class="disclaimer">Paródia fictícia para entretenimento. Golpes, poderes e situações não representam fatos reais.</p>
+    </div>
+  </section>
+
+  <section id="select" class="screen">
+    <header class="topbar"><button class="back" data-go="home">← VOLTAR</button><div>SELEÇÃO DE LUTADOR</div><span>15 PERSONAGENS</span></header>
+    <div class="select-wrap">
+      <div class="selected-card" id="selectedCard"></div>
+      <div>
+        <h2>ESCOLHA SEU <span>VEREADOR</span></h2>
+        <p class="hint">Clique em um personagem e confirme para começar.</p>
+        <div id="roster" class="roster"></div>
+        <button id="fightBtn" class="primary wide">ENTRAR NA ARENA</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="how" class="screen">
+    <header class="topbar"><button class="back" data-go="home">← VOLTAR</button><div>COMO JOGAR</div><span>GUIA RÁPIDO</span></header>
+    <div class="how-card">
+      <h2>CONTROLES</h2>
+      <div class="keys">
+        <div><kbd>A</kbd><kbd>D</kbd><b>Mover</b></div><div><kbd>W</kbd><b>Pular</b></div><div><kbd>S</kbd><b>Defender</b></div>
+        <div><kbd>J</kbd><b>Soco</b></div><div><kbd>K</kbd><b>Chute</b></div><div><kbd>L</kbd><b>Especial</b></div>
+      </div>
+      <p>Encha a barra de energia atacando. O especial exige 50 de energia. Vença dois rounds para ganhar a partida.</p>
+      <button class="primary" data-go="select">ESCOLHER LUTADOR</button>
+    </div>
+  </section>
+
+  <section id="arena" class="screen">
+    <div id="stage" class="stage">
+      <div class="skyline"></div><div class="chamber"><div class="crest">CÂMARA<br>MUNICIPAL<br><strong>CUBATÃO</strong></div></div>
+      <div class="hud">
+        <div class="fighter-hud"><div class="hud-name" id="p1Name"></div><div class="health"><i id="p1Health"></i></div><div class="energy"><i id="p1Energy"></i></div></div>
+        <div class="roundbox"><b id="timer">60</b><span id="roundLabel">ROUND 1</span></div>
+        <div class="fighter-hud right"><div class="hud-name" id="p2Name"></div><div class="health"><i id="p2Health"></i></div><div class="energy"><i id="p2Energy"></i></div></div>
+      </div>
+      <div id="announcement" class="announcement"></div>
+      <div id="p1" class="fighter"><div class="sprite"><span></span></div><div class="shadow"></div></div>
+      <div id="p2" class="fighter enemy"><div class="sprite"><span></span></div><div class="shadow"></div></div>
+      <div class="floor"></div>
+      <button id="pauseBtn" class="pause">Ⅱ</button>
+    </div>
+    <div class="mobile-controls">
+      <div><button data-key="a">◀</button><button data-key="w">▲</button><button data-key="d">▶</button><button data-key="s">◆</button></div>
+      <div><button data-key="j">J</button><button data-key="k">K</button><button class="special" data-key="l">L</button></div>
+    </div>
+  </section>
+
+  <div id="modal" class="modal">
+    <div class="modal-card"><p id="modalKicker">RESULTADO</p><h2 id="modalTitle"></h2><p id="modalText"></p>
+      <div><button id="rematch" class="primary">REVANCHE</button><button class="secondary" data-go="select">TROCAR LUTADOR</button></div>
+    </div>
+  </div>
+</div>
+<script src="game.js"></script>
+</body></html>
