@@ -1,44 +1,97 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#07101f">
-<title>Câmara Cubatão Fighter</title>
-<link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#07101f">
+  <title>Câmara de Cubatão Fighter</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div id="app">
-  <section id="home" class="screen active">
+  <section id="boot" class="screen active boot-screen" aria-label="Carregando">
+    <div class="boot-card">
+      <div class="seal">CCF</div>
+      <h1>CÂMARA DE CUBATÃO <span>FIGHTER</span></h1>
+      <p>Carregando lutadores e arenas...</p>
+      <div class="loadbar"><i id="loadProgress"></i></div>
+      <b id="loadText">0%</b>
+    </div>
+  </section>
+
+  <section id="home" class="screen home-screen">
     <div class="scanlines"></div>
     <div class="hero">
       <div class="seal">CCF</div>
       <p class="eyebrow">CUBATÃO • SP • ARCADE</p>
       <h1>CÂMARA DE<br><span>CUBATÃO</span> FIGHTER</h1>
-      <p class="tagline">15 LUTADORES • 3 ARENAS • 2 MODOS DE JOGO</p>
+      <p class="tagline">15 LUTADORES • 3 ARENAS • COMBATE 2D ARCADE</p>
       <div class="mode-menu">
-        <button id="quickModeBtn" class="mode-btn primary"><b>LUTA SIMPLES</b><small>Escolha seu lutador e sua arena</small></button>
-        <button id="tournamentModeBtn" class="mode-btn secondary"><b>MODO TORNEIO</b><small>Três lutas até o título</small></button>
-        <button class="mode-btn secondary" data-go="how"><b>COMO JOGAR</b><small>Controles e regras</small></button>
+        <button id="quickModeBtn" class="mode-btn primary"><b>LUTA SIMPLES</b><small>P1 vs CPU ou P1 vs P2</small></button>
+        <button id="tournamentModeBtn" class="mode-btn secondary"><b>MODO TORNEIO</b><small>Três confrontos até o título</small></button>
+        <button id="trainingModeBtn" class="mode-btn secondary"><b>MODO TREINO</b><small>Frame data, dummy e caixas de colisão</small></button>
+        <button id="mapGalleryBtn" class="mode-btn secondary"><b>MAPAS</b><small>Visualize as arenas disponíveis</small></button>
+        <button class="mode-btn secondary" data-go="how"><b>COMO JOGAR</b><small>Controles, defesa, especiais e super</small></button>
+        <button class="mode-btn secondary" data-go="settings"><b>CONFIGURAÇÕES</b><small>Áudio, tremor e acessibilidade</small></button>
+        <button class="mode-btn secondary" data-go="credits"><b>CRÉDITOS</b><small>Projeto e ativos</small></button>
       </div>
-      <p class="disclaimer">Paródia fictícia para entretenimento. Golpes e poderes são inteiramente fictícios.</p>
+      <p class="disclaimer">Jogo local de ficção e entretenimento. Todos os golpes, estilos e poderes são fictícios.</p>
+    </div>
+  </section>
+
+  <section id="fightConfig" class="screen">
+    <header class="topbar"><button class="back" data-go="home">← VOLTAR</button><div>CONFIGURAÇÃO DA LUTA</div><span>ARCADE</span></header>
+    <div class="panel-page narrow">
+      <p class="eyebrow center">ANTES DO COMBATE</p>
+      <h2>CONFIGURE A <span>PARTIDA</span></h2>
+      <div class="option-grid">
+        <label class="option-card">Oponente
+          <select id="opponentType">
+            <option value="cpu">CPU</option>
+            <option value="p2">P2 LOCAL</option>
+          </select>
+        </label>
+        <label class="option-card">Dificuldade
+          <select id="difficultySelect">
+            <option value="easy">Fácil</option>
+            <option value="normal" selected>Normal</option>
+            <option value="hard">Difícil</option>
+            <option value="veryhard">Muito difícil</option>
+          </select>
+        </label>
+        <label class="option-card">Melhor de
+          <select id="roundsSelect">
+            <option value="1">1 round</option>
+            <option value="3" selected>3 rounds</option>
+            <option value="5">5 rounds</option>
+          </select>
+        </label>
+        <label class="option-card">Tempo
+          <select id="timeSelect">
+            <option value="60">60 s</option>
+            <option value="75" selected>75 s</option>
+            <option value="99">99 s</option>
+          </select>
+        </label>
+      </div>
+      <button id="configContinueBtn" class="primary wide">CONTINUAR → PERSONAGENS</button>
     </div>
   </section>
 
   <section id="select" class="screen">
-    <header class="topbar"><button class="back" data-go="home">← VOLTAR</button><div>SELEÇÃO DE LUTADOR</div><span>15 PERSONAGENS</span></header>
+    <header class="topbar"><button class="back" id="selectBackBtn">← VOLTAR</button><div>SELEÇÃO DE LUTADOR</div><span>15 PERSONAGENS</span></header>
     <div class="select-wrap">
       <div class="selected-card" id="selectedCard"></div>
-      <div>
-        <h2>ESCOLHA SEU <span>VEREADOR</span></h2>
-        <p class="hint">Selecione o personagem que vai representar você na arena.</p>
+      <div class="roster-pane">
+        <div class="select-status"><span id="selectPhaseLabel">P1 • ESCOLHA SEU LUTADOR</span><small id="selectHint">Confirme para continuar.</small></div>
         <div id="roster" class="roster"></div>
-        <button id="fightBtn" class="primary wide">CONTINUAR → ESCOLHER ARENA</button>
+        <button id="confirmFighterBtn" class="primary wide">CONFIRMAR P1</button>
       </div>
     </div>
   </section>
 
   <section id="maps" class="screen">
-    <header class="topbar"><button class="back" data-go="select">← LUTADOR</button><div>SELEÇÃO DE ARENA</div><span>3 MAPAS</span></header>
+    <header class="topbar"><button class="back" id="mapBackBtn">← VOLTAR</button><div>SELEÇÃO DE ARENA</div><span>3 MAPAS</span></header>
     <div class="map-wrap">
       <p class="eyebrow center">ESCOLHA O PALCO DA LUTA</p>
       <h2>SELECIONE A <span>ARENA</span></h2>
@@ -62,9 +115,9 @@
     <div class="vs-wrap">
       <p class="eyebrow center" id="vsMode">LUTA SIMPLES</p>
       <div class="vs-grid">
-        <div class="vs-card red"><img id="vsP1Img" alt=""><h2 id="vsP1Name"></h2><p id="vsP1Power"></p></div>
+        <div class="vs-card red"><span class="player-label">P1</span><img id="vsP1Img" alt=""><h2 id="vsP1Name"></h2><p id="vsP1Power"></p></div>
         <div class="vs-mark">VS</div>
-        <div class="vs-card blue"><img id="vsP2Img" alt=""><h2 id="vsP2Name"></h2><p id="vsP2Power"></p></div>
+        <div class="vs-card blue"><span class="player-label" id="vsP2Label">CPU</span><img id="vsP2Img" alt=""><h2 id="vsP2Name"></h2><p id="vsP2Power"></p></div>
       </div>
       <div class="vs-arena"><small>ARENA</small><b id="vsArena"></b></div>
       <button id="startFightBtn" class="primary">FIGHT!</button>
@@ -73,80 +126,143 @@
 
   <section id="how" class="screen">
     <header class="topbar"><button class="back" data-go="home">← VOLTAR</button><div>COMO JOGAR</div><span>GUIA RÁPIDO</span></header>
-    <div class="how-card">
+    <div class="panel-page">
       <h2>CONTROLES</h2>
-      <div class="keys">
-        <div><kbd>A</kbd><kbd>D</kbd><b>Mover</b></div><div><kbd>W</kbd><b>Pular</b></div><div><kbd>S</kbd><b>Defender</b></div>
-        <div><kbd>J</kbd><b>Soco</b></div><div><kbd>K</kbd><b>Chute</b></div><div><kbd>L</kbd><b>Especial</b></div>
+      <div class="controls-table">
+        <div><b>P1</b><span><kbd>A</kbd><kbd>D</kbd> mover • <kbd>W</kbd> pular • <kbd>S</kbd> agachar</span></div>
+        <div><b>Ataques</b><span><kbd>Z</kbd> soco • <kbd>X</kbd> chute • <kbd>B</kbd> pesado • <kbd>C</kbd> especial • <kbd>V</kbd> defesa</span></div>
+        <div><b>P2 local</b><span>Setas mover • <kbd>J</kbd> soco • <kbd>K</kbd> chute • <kbd>I</kbd> pesado • <kbd>L</kbd> especial • <kbd>;</kbd> defesa</span></div>
+        <div><b>Dash</b><span>Toque duas vezes para frente ou para trás.</span></div>
+        <div><b>Especial clássico</b><span>↓ ↘ → + soco/chute. O botão de especial simplificado também funciona.</span></div>
+        <div><b>Super</b><span>Com medidor cheio: pesado + especial ao mesmo tempo.</span></div>
+        <div><b>Agarrão</b><span>Soco + chute juntos a curta distância.</span></div>
+        <div><b>Pausa</b><span><kbd>Esc</kbd> / Start abre controles, reinício e menu.</span></div>
       </div>
-      <p>Ataque para carregar energia. Com 50 de energia, use o especial. Vença dois rounds para ganhar a luta.</p>
+      <div class="how-notes"><p><b>Defesa:</b> segure para trás para bloquear golpes altos/médios; para trás + baixo bloqueia golpes baixos.</p><p><b>Medidor:</b> enche durante a luta. Especial usa parte do medidor; Super custa 100.</p></div>
       <button id="howPlayBtn" class="primary">LUTA SIMPLES</button>
     </div>
   </section>
 
-  <section id="arena" class="screen">
+  <section id="settings" class="screen">
+    <header class="topbar"><button class="back" data-go="home">← VOLTAR</button><div>CONFIGURAÇÕES</div><span>PREFERÊNCIAS</span></header>
+    <div class="panel-page narrow">
+      <h2>JOGO E <span>ACESSIBILIDADE</span></h2>
+      <label class="setting-row"><span>Volume geral</span><input id="masterVolume" type="range" min="0" max="1" step="0.05"></label>
+      <label class="setting-row"><span>Reduzir tremor de câmera</span><input id="reduceShake" type="checkbox"></label>
+      <label class="setting-row"><span>Reduzir flashes intensos</span><input id="reduceFlashes" type="checkbox"></label>
+      <label class="setting-row"><span>Especial simplificado por botão</span><input id="simpleSpecial" type="checkbox"></label>
+      <label class="setting-row"><span>Mostrar controles touch sempre</span><input id="forceTouch" type="checkbox"></label>
+      <button id="settingsSaveBtn" class="primary wide">SALVAR</button>
+    </div>
+  </section>
+
+  <section id="credits" class="screen">
+    <header class="topbar"><button class="back" data-go="home">← VOLTAR</button><div>CRÉDITOS</div><span>PROJETO</span></header>
+    <div class="panel-page narrow credits">
+      <div class="seal">CCF</div>
+      <h2>CÂMARA DE CUBATÃO <span>FIGHTER</span></h2>
+      <p>Projeto web estático em HTML, CSS e JavaScript. Retratos e referências locais foram fornecidos para este projeto. Mecânicas, VFX, interface e áudio procedural são originais desta implementação.</p>
+      <p>Os personagens são avatares ficcionais; golpes e poderes não descrevem fatos sobre as pessoas representadas.</p>
+      <p class="muted">Não utiliza sprites, músicas, efeitos sonoros, logos ou código proprietários de outros jogos.</p>
+    </div>
+  </section>
+
+  <section id="arena" class="screen arena-screen">
     <div id="stage" class="stage">
       <img id="stageBg" class="stage-bg" alt="">
-      <div class="skyline"></div><div class="chamber"><div class="flags">▥ 🇧🇷 ▥</div><div class="crest">CÂMARA MUNICIPAL DE<br><strong>CUBATÃO</strong></div><div class="benches"></div></div>
+      <div class="parallax-glow"></div>
       <div class="hud">
-        <div class="fighter-hud"><div class="hud-name" id="p1Name"></div><div class="health"><i id="p1Health"></i></div><div class="energy"><i id="p1Energy"></i></div><div class="round-wins" id="p1Wins"></div></div>
+        <div class="fighter-hud">
+          <div class="hud-top"><img id="p1HudImg" alt=""><div><span class="hud-side">P1</span><div class="hud-name" id="p1Name"></div></div></div>
+          <div class="health"><i id="p1Health"></i><em id="p1RedHealth"></em></div>
+          <div class="energy"><i id="p1Energy"></i></div><div class="round-wins" id="p1Wins"></div>
+        </div>
         <div class="roundbox"><b id="timer">75</b><span id="roundLabel">ROUND 1</span></div>
-        <div class="fighter-hud right"><div class="hud-name" id="p2Name"></div><div class="health"><i id="p2Health"></i></div><div class="energy"><i id="p2Energy"></i></div><div class="round-wins" id="p2Wins"></div></div>
+        <div class="fighter-hud right">
+          <div class="hud-top"><div><span class="hud-side" id="p2HudSide">CPU</span><div class="hud-name" id="p2Name"></div></div><img id="p2HudImg" alt=""></div>
+          <div class="health"><i id="p2Health"></i><em id="p2RedHealth"></em></div>
+          <div class="energy"><i id="p2Energy"></i></div><div class="round-wins" id="p2Wins"></div>
+        </div>
       </div>
       <div id="announcement" class="announcement"></div>
       <div id="comboText" class="combo-text"></div>
+      <div id="counterText" class="counter-text"></div>
       <div id="p1" class="fighter"><div class="sprite"></div><div class="shadow"></div></div>
       <div id="p2" class="fighter enemy"><div class="sprite"></div><div class="shadow"></div></div>
+      <div id="projectileLayer" class="projectile-layer"></div>
+      <div id="vfxLayer" class="vfx-layer"></div>
+      <div id="debugLayer" class="debug-layer"></div>
       <div class="floor"></div>
       <div class="stage-name" id="stageName"></div>
-      <button id="pauseBtn" class="pause">Ⅱ</button>
+      <button id="pauseBtn" class="pause" aria-label="Pausar">Ⅱ</button>
+      <div id="trainingPanel" class="training-panel hidden">
+        <div class="training-title">TREINO</div>
+        <div><b>Dummy</b><select id="dummyMode"><option value="stand">Parado</option><option value="block">Bloqueia tudo</option><option value="afterhit">Bloqueia após 1º hit</option><option value="jump">Pula</option><option value="random">Aleatório</option></select></div>
+        <div><b>Medidor</b><select id="trainingMeter"><option value="normal">Normal</option><option value="infinite">Infinito</option><option value="empty">Vazio</option></select></div>
+        <div class="training-buttons"><button id="trainingResetBtn">RESET</button><button id="debugBoxesBtn">HITBOXES</button><button id="recordDummyBtn">GRAVAR</button><button id="playDummyBtn">REPETIR</button></div>
+        <div class="training-data"><span id="frameDataText">IDLE</span><span id="comboDamageText">DANO: 0</span></div>
+        <div id="inputDisplay" class="input-display"></div>
+      </div>
     </div>
-    <div class="mobile-controls">
-      <div><button data-key="a">◀</button><button data-key="w">▲</button><button data-key="d">▶</button><button data-key="s">◆</button></div>
-      <div><button data-key="j">J</button><button data-key="k">K</button><button class="special" data-key="l">L</button></div>
+
+    <div id="mobileControls" class="mobile-controls" aria-label="Controles touch">
+      <div class="touch-dpad">
+        <button data-virt="left">◀</button><button data-virt="up">▲</button><button data-virt="right">▶</button><button data-virt="down">▼</button>
+      </div>
+      <div class="touch-actions">
+        <button data-virt="punch">P</button><button data-virt="kick">K</button><button data-virt="heavy">H</button><button data-virt="special" class="special">S</button><button data-virt="guard">G</button>
+      </div>
     </div>
   </section>
 
   <div id="pauseOverlay" class="pause-overlay hidden">
     <div class="pause-card">
-      <p class="pause-kicker">PARTIDA PAUSADA</p>
-      <h2>PAUSADO</h2>
-      <p>Escolha uma opção.</p>
+      <p class="pause-kicker">PARTIDA PAUSADA</p><h2>PAUSADO</h2>
       <div class="pause-actions">
         <button id="resumeBtn" class="primary">CONTINUAR</button>
-        <button id="pauseControlsBtn" class="secondary">VER CONTROLES</button>
-        <button id="pauseMenuBtn" class="secondary danger">VOLTAR AO MENU</button>
+        <button id="pauseControlsBtn" class="secondary">CONTROLES</button>
+        <button id="restartRoundBtn" class="secondary">REINICIAR ROUND</button>
+        <button id="changeFighterBtn" class="secondary">TROCAR PERSONAGEM</button>
+        <button id="pauseSettingsBtn" class="secondary">ÁUDIO / TREMOR</button>
+        <button id="pauseMenuBtn" class="secondary danger">MENU PRINCIPAL</button>
       </div>
     </div>
   </div>
 
   <div id="controlsOverlay" class="pause-overlay hidden">
     <div class="pause-card controls-card">
-      <p class="pause-kicker">GUIA RÁPIDO</p>
-      <h2>CONTROLES</h2>
+      <p class="pause-kicker">GUIA RÁPIDO</p><h2>CONTROLES</h2>
       <div class="controls-list">
-        <div><span class="control-keys"><kbd>A</kbd><kbd>D</kbd></span><span>Mover</span></div>
-        <div><span class="control-keys"><kbd>W</kbd></span><span>Pular</span></div>
-        <div><span class="control-keys"><kbd>S</kbd></span><span>Defender</span></div>
-        <div><span class="control-keys"><kbd>J</kbd></span><span>Soco</span></div>
-        <div><span class="control-keys"><kbd>K</kbd></span><span>Chute</span></div>
-        <div><span class="control-keys"><kbd>L</kbd></span><span>Especial</span></div>
-        <div><span class="control-keys"><kbd>D</kbd><kbd>D</kbd></span><span>Dash para frente</span></div>
-        <div><span class="control-keys"><kbd>A</kbd><kbd>A</kbd></span><span>Dash para trás</span></div>
-        <div class="wide-control"><span class="control-keys"><kbd>S</kbd> → <kbd>D</kbd> + <kbd>J</kbd>/<kbd>K</kbd></span><span>¼ de lua + ataque</span></div>
+        <div><span class="control-keys"><kbd>A</kbd><kbd>D</kbd></span><span>Mover P1</span></div>
+        <div><span class="control-keys"><kbd>W</kbd><kbd>S</kbd></span><span>Pulo / agachar</span></div>
+        <div><span class="control-keys"><kbd>Z</kbd><kbd>X</kbd></span><span>Soco / chute</span></div>
+        <div><span class="control-keys"><kbd>C</kbd><kbd>V</kbd></span><span>Especial / defesa</span></div>
+        <div><span class="control-keys">← ↑ ↓ →</span><span>Mover P2</span></div>
+        <div><span class="control-keys"><kbd>J</kbd><kbd>K</kbd><kbd>L</kbd></span><span>Ataques P2</span></div>
       </div>
-      <div class="pause-actions">
-        <button id="backToPauseBtn" class="secondary">VOLTAR AO PAUSE</button>
-        <button id="closeControlsBtn" class="primary">CONTINUAR</button>
-      </div>
+      <div class="pause-actions"><button id="backToPauseBtn" class="secondary">VOLTAR AO PAUSE</button><button id="closeControlsBtn" class="primary">CONTINUAR</button></div>
     </div>
   </div>
 
-  <div id="modal" class="modal">
-    <div class="modal-card"><p id="modalKicker">RESULTADO</p><h2 id="modalTitle"></h2><p id="modalText"></p>
-      <div><button id="rematch" class="primary">REVANCHE</button><button class="secondary" data-go="select">TROCAR LUTADOR</button></div>
+  <div id="quickSettingsOverlay" class="pause-overlay hidden">
+    <div class="pause-card">
+      <p class="pause-kicker">AJUSTES RÁPIDOS</p><h2>ÁUDIO / TREMOR</h2>
+      <label class="setting-row"><span>Volume</span><input id="pauseVolume" type="range" min="0" max="1" step="0.05"></label>
+      <label class="setting-row"><span>Reduzir tremor</span><input id="pauseShake" type="checkbox"></label>
+      <div class="pause-actions"><button id="backFromQuickSettings" class="primary">VOLTAR</button></div>
     </div>
   </div>
+
+  <div id="confirmOverlay" class="pause-overlay hidden">
+    <div class="pause-card confirm-card"><p class="pause-kicker">CONFIRMAR</p><h2 id="confirmTitle">SAIR?</h2><p id="confirmMessage"></p><div class="pause-actions split"><button id="confirmNo" class="secondary">CANCELAR</button><button id="confirmYes" class="primary">CONFIRMAR</button></div></div>
+  </div>
+
+  <div id="modal" class="modal">
+    <div class="modal-card"><p id="modalKicker">RESULTADO</p><h2 id="modalTitle"></h2><p id="modalText"></p><div><button id="rematch" class="primary">REVANCHE</button><button id="resultSelectBtn" class="secondary">TROCAR LUTADOR</button><button id="resultMenuBtn" class="secondary">MENU</button></div></div>
+  </div>
+
+  <div id="rotateNotice" class="rotate-notice"><div>↻<b>Gire o aparelho</b><span>Para jogar melhor, use o celular na horizontal.</span></div></div>
 </div>
 <script src="game.js"></script>
-</body></html>
+</body>
+</html>
