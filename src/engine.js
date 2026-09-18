@@ -421,6 +421,7 @@ export class GameEngine{
   applyHit(att,def,m,fromProjectile=false){
     const blocked=this.canBlock(def,m);
     if(blocked){
+      if(this.comboOwner===att){att.comboCount=0;att.comboDamage=0;this.comboOwner=null;this.comboTimer=0}
       let chip=(m.kind==="special"||m.kind==="projectile"||m.kind.includes("super"))?Math.ceil(m.damage*.08):0;
       if(chip>0)def.hp=Math.max(1,def.hp-chip);
       def.state=STATES.BLOCKSTUN;def.blockstun=m.blockstun;att.connected="block";if(att.move)att.move.connected="block";
@@ -428,7 +429,7 @@ export class GameEngine{
       this.spark(def,"block");this.audio.play("block");return;
     }
     const wasAttacking=!!def.move&&this.phaseOf(def)==="STARTUP";
-    const continuing=this.comboOwner===att&&this.comboTimer>0;
+    const continuing=this.comboOwner===att&&def.state===STATES.HITSTUN&&this.comboTimer>0;
     if(!continuing){att.comboCount=0;att.comboDamage=0}
     att.comboCount++;const scale=SCALE[Math.min(att.comboCount-1,SCALE.length-1)]||.55;
     const damage=Math.round(m.damage*scale);def.hp=clamp(def.hp-damage,0,1000);att.comboDamage+=damage;att.lastHitFrame=this.frame;
