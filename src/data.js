@@ -94,6 +94,6 @@ export const difficulty={
 };
 
 export const DEFAULT_SETTINGS={
-  masterVolume:.55,reduceShake:false,reduceFlashes:false,simpleSpecial:true,forceTouch:false,
-  difficulty:"normal"
+  masterVolume:.55,musicVolume:.22,sfxVolume:.72,uiVolume:.55,
+  reduceShake:false,reduceFlashes:false,simpleSpecial:true,forceTouch:false,difficulty:"normal"
 };
