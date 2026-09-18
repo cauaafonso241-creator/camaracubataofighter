@@ -129,7 +129,7 @@ class Renderer{
     }
   }
   renderProjectiles(){
-    this.projectileLayer.innerHTML=this.engine.projectiles.map(p=>`<span class="projectile ${p.css}" style="left:${p.x}%;bottom:calc(var(--stage-floor) + ${(p.y*Y_SCALE).toFixed(2)}%)">${p.glyph}</span>`).join("");
+    this.projectileLayer.innerHTML=this.engine.projectiles.map(p=>`<span class="projectile ${p.css}" style="left:${p.x}%;bottom:calc(var(--stage-floor) + ${(p.y*Y_SCALE).toFixed(2)}%)"><i></i></span>`).join("");
   }
   renderDebug(){
     if(!this.engine.debug){this.debugLayer.innerHTML="";return}
