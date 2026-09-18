@@ -149,7 +149,7 @@ export class GameEngine{
     this.renderer=new Renderer(this);this.running=false;this.paused=false;this.raf=0;this.lastTime=0;this.acc=0;this.frame=0;this.hitstop=0;
     this.p1=null;this.p2=null;this.projectiles=[];this.projectileId=0;this.mode="quick";this.config=null;this.debug=false;
     this.ai=null;this.round=1;this.roundFrames=75*60;this.roundOver=false;this.matchOver=false;this.freezeRoundIntro=0;
-    this.comboOwner=null;this.comboTimer=0;this.recording=false;this.recorded=[];this.replaying=false;this.replayIndex=0;
+    this.comboOwner=null;this.comboTimer=0;this.roundEndFrames=0;this.roundWinner=null;this.roundReason="";this.recording=false;this.recorded=[];this.replaying=false;this.replayIndex=0;
     this.lastInput={p1:null,p2:null};
   }
   start(config){
@@ -203,7 +203,7 @@ export class GameEngine{
   }
   resetRound(first=false){
     const w1=this.p1.wins,w2=this.p2.wins;this.p1.resetRound(20);this.p2.resetRound(80);this.p1.wins=w1;this.p2.wins=w2;
-    this.projectiles=[];this.roundFrames=(this.config.time||75)*60;this.roundOver=false;this.hitstop=0;this.freezeRoundIntro=62;this.comboOwner=null;this.comboTimer=0;
+    this.projectiles=[];this.roundFrames=(this.config.time||75)*60;this.roundOver=false;this.roundEndFrames=0;this.roundWinner=null;this.roundReason="";this.hitstop=0;this.freezeRoundIntro=62;this.comboOwner=null;this.comboTimer=0;
     document.querySelector("#roundLabel").textContent="ROUND "+this.round;
     this.announce("ROUND "+this.round,550);setTimeout(()=>{if(this.running&&!this.paused)this.announce("FIGHT!",450)},580);
   }
@@ -230,7 +230,12 @@ export class GameEngine{
     }
     if(this.freezeRoundIntro>0){this.freezeRoundIntro--;return}
     if(this.hitstop>0){this.hitstop--;this.processBuffersOnly();return}
-    if(this.roundOver||this.matchOver)return;
+    if(this.matchOver)return;
+    if(this.roundOver){
+      if(this.roundEndFrames>0)this.roundEndFrames--;
+      if(this.roundEndFrames===0&&this.roundWinner)this.finishRound(this.roundWinner,this.roundReason);
+      return;
+    }
     this.updateGuard(this.p1,inp.p1);this.updateGuard(this.p2,inp.p2);
     if(!p2Human)this.updateCPU(inp);
     if(this.mode==="training"&&this.replaying)this.applyReplayToDummy();
@@ -342,7 +347,7 @@ export class GameEngine{
     if(a.state===STATES.BLOCKSTUN){if(--a.blockstun<=0)a.state=STATES.IDLE;return}
     if(a.state===STATES.KNOCKDOWN){if(--a.knockdown<=0){a.state=STATES.WAKEUP;a.wakeup=14;a.invuln=8}return}
     if(a.state===STATES.WAKEUP){if(--a.wakeup<=0)a.state=STATES.IDLE;return}
-    if(a.state===STATES.THROWN)return;
+    if(a.state===STATES.THROWN){if(--a.hitstun<=0){a.state=STATES.KNOCKDOWN;a.knockdown=48;a.pendingKnockdown=false}return}
     if(a.move){this.updateMove(a,side)}
     else this.updateMovement(a,side);
     if(!a.onGround){
@@ -430,13 +435,12 @@ export class GameEngine{
     this.audio.play(m.damage>=80?"hitHeavy":"hitLight");
     if(wasAttacking){document.querySelector("#counterText").textContent="COUNTER!";setTimeout(()=>document.querySelector("#counterText").textContent="",420)}
     if(att.comboCount>=2){const el=document.querySelector("#comboText");el.textContent=att.comboCount+" HIT COMBO!";setTimeout(()=>{if(el.textContent.includes("HIT"))el.textContent=""},520)}
-    if(def.hp<=0)this.beginKO(att,def);
+    if(def.hp<=0){if(this.mode==="training"){def.hp=1000;def.redHp=1000}else this.beginKO(att,def)}
   }
   applyThrow(att,def,m){
     def.hp=clamp(def.hp-m.damage,0,1000);att.meter=clamp(att.meter+8,0,100);def.state=STATES.THROWN;def.pendingKnockdown=true;def.hitstun=16;
     this.audio.play("throw");this.spark(def,"heavy");this.hitstop=m.hitstop;this.pushActors(att,def,m.pushHit);
-    setTimeout(()=>{if(this.running&&def.state===STATES.THROWN){def.state=STATES.KNOCKDOWN;def.knockdown=48}},260);
-    if(def.hp<=0)this.beginKO(att,def);
+    if(def.hp<=0){if(this.mode==="training"){def.hp=1000;def.redHp=1000}else this.beginKO(att,def)}
   }
   pushActors(att,def,amount){
     const dir=def.x>=att.x?1:-1,target=def.x+dir*amount;
@@ -511,24 +515,24 @@ export class GameEngine{
   }
   resolveTimeout(){
     if(this.roundOver)return;
-    if(this.p1.hp===this.p2.hp){this.p1.hp+=1}
-    const winner=this.p1.hp>this.p2.hp?this.p1:this.p2;this.finishRound(winner,"TIME");
+    if(this.p1.hp===this.p2.hp)this.p1.hp+=1;
+    const winner=this.p1.hp>this.p2.hp?this.p1:this.p2,loser=winner===this.p1?this.p2:this.p1;
+    this.roundOver=true;this.roundWinner=winner;this.roundReason="TIME";this.roundEndFrames=32;
+    winner.state=STATES.VICTORY;loser.state=STATES.DEFEAT;this.announce("TIME!",520);
   }
   beginKO(winner,loser){
-    if(this.roundOver)return;this.roundOver=true;this.hitstop=Math.max(this.hitstop,12);this.audio.play("ko");this.announce("K.O.!",700);
+    if(this.roundOver||this.mode==="training")return;
+    this.roundOver=true;this.roundWinner=winner;this.roundReason="KO";this.roundEndFrames=46;
+    this.hitstop=Math.max(this.hitstop,12);this.audio.play("ko");this.announce("K.O.!",700);
     winner.state=STATES.VICTORY;loser.state=STATES.DEFEAT;
-    setTimeout(()=>{if(this.running)this.finishRound(winner,"KO")},760);
   }
   finishRound(winner,reason){
-    if(this.matchOver)return;
-    this.roundOver=true;winner.wins++;
-    const perfect=winner.hp===1000&&reason!=="TIME";
-    if(perfect)this.announce("PERFECT!",600);
+    if(this.matchOver||!winner)return;
+    this.roundWinner=null;this.roundEndFrames=0;winner.wins++;
+    const perfect=winner.hp===1000&&reason!=="TIME";if(perfect)this.announce("PERFECT!",500);
     const need=Math.ceil((this.config.bestOf||3)/2);
-    setTimeout(()=>{
-      if(winner.wins>=need){this.matchOver=true;this.onMatchEnd({winner:winner.side,winnerIndex:winner.index,reason,perfect})}
-      else{this.round++;this.resetRound()}
-    },perfect?650:360)
+    if(winner.wins>=need){this.matchOver=true;this.onMatchEnd({winner:winner.side,winnerIndex:winner.index,reason,perfect})}
+    else{this.round++;this.resetRound()}
   }
   setDebug(v){this.debug=!!v}
   resetTrainingPosition(){if(this.mode!=="training")return;const w1=this.p1.wins,w2=this.p2.wins;this.p1.resetRound(28);this.p2.resetRound(72);this.p1.wins=w1;this.p2.wins=w2;this.p1.meter=this.p2.meter=100;this.projectiles=[]}
