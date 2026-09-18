@@ -72,8 +72,25 @@ function prepareVs(){
 $("#mapConfirm").onclick=()=>{if(gameMode==="quick"){enemy=pickRandomOpponent();prepareVs()}else{if(!tournament.active)setupTournament();enemy=tournament.opponents[tournament.round];renderTournament();go("tournament")}};
 $("#nextTournamentBtn").onclick=()=>prepareVs();$("#startFightBtn").onclick=()=>{go("arena");startGame()};
 
+function propMarkup(f){
+  if(f.type==="cavaco")return `<div class="fighter-prop prop-cavaco" aria-hidden="true"><span class="prop-neck"></span><span class="prop-body"><i></i></span><span class="prop-strings"></span></div>`;
+  if(f.type==="scissors")return `<div class="fighter-prop prop-scissors" aria-hidden="true"><span class="scissor-ring r1"></span><span class="scissor-ring r2"></span><span class="scissor-blade b1"></span><span class="scissor-blade b2"></span></div>`;
+  if(f.type==="process")return `<div class="fighter-prop prop-process" aria-hidden="true"><span>PROC.</span><i></i><i></i><i></i></div>`;
+  if(f.type==="water")return `<div class="fighter-prop prop-water" aria-hidden="true"><span class="gallon-handle"></span><span class="gallon-cap"></span></div>`;
+  if(f.type==="dumbbell")return `<div class="fighter-prop prop-dumbbell" aria-hidden="true"><span class="db-left"></span><span class="db-bar"></span><span class="db-right"></span></div>`;
+  if(f.type==="ball")return `<div class="fighter-prop prop-ball" aria-hidden="true">⚽</div>`;
+  return "";
+}
 function fighterMarkup(f){
-  return `<div class="fighter-head"><img src="${f.portrait}" alt=""></div><div class="fighter-torso"><span class="shirt"></span><span class="tie"></span></div><div class="arm arm-left"><span class="hand"></span></div><div class="arm arm-right"><span class="hand"></span></div><div class="leg leg-left"><span class="shoe"></span></div><div class="leg leg-right"><span class="shoe"></span></div>`;
+  return `<div class="fighter-rig">
+    <div class="leg leg-back"><span class="thigh"></span><span class="calf"></span><span class="shoe"></span></div>
+    <div class="leg leg-front"><span class="thigh"></span><span class="calf"></span><span class="shoe"></span></div>
+    <div class="torso"><span class="jacket-lapel lapel-left"></span><span class="jacket-lapel lapel-right"></span><span class="shirt"></span><span class="tie"></span></div>
+    <div class="arm arm-back"><span class="upper"></span><span class="forearm"></span><span class="hand"></span></div>
+    <div class="head"><div class="face-frame"><img src="${f.portrait}" alt="${f.name}"></div></div>
+    <div class="arm arm-front"><span class="upper"></span><span class="forearm"></span><span class="hand"></span></div>
+    ${propMarkup(f)}
+  </div>`;
 }
 function makeActor(x){return {hp:100,en:0,x,y:0,vy:0,onGround:true,wins:0,stun:0,blockstun:0,block:false,move:null,combo:0,lastHit:0,dashFrames:0,dashDir:0,lastTap:{a:0,d:0},aiDelay:0}}
 function setupFighter(id,f){const el=$("#"+id),sprite=el.querySelector(".sprite");el.style.setProperty("--fighter-color",f.c);el.dataset.special=f.type;el.dataset.name=f.name;sprite.innerHTML=fighterMarkup(f)}
@@ -241,9 +258,37 @@ function endRound(){
   setTimeout(()=>{if(winner.wins>=2){const win=winner===state.p1;stopGame();showResult(win)}else{state.round++;resetRound()}},980)
 }
 
-addEventListener("keydown",e=>{const k=e.key.toLowerCase();if(["a","d","w","s","j","k","l"].includes(k)){keys[k]=true;registerKeyDown(k,e.repeat);e.preventDefault()}if(e.key==="Escape")togglePause()});
+const pauseOverlay=$("#pauseOverlay"),controlsOverlay=$("#controlsOverlay");
+function openPauseMenu(){
+  if(!state||state.over)return;
+  paused=true;keys={};pauseOverlay.classList.remove("hidden");controlsOverlay.classList.add("hidden");$("#announcement").textContent="";
+}
+function closePauseMenu(){
+  if(!state)return;
+  paused=false;pauseOverlay.classList.add("hidden");controlsOverlay.classList.add("hidden");announce("FIGHT!",360);
+}
+function openControlsFromPause(){pauseOverlay.classList.add("hidden");controlsOverlay.classList.remove("hidden")}
+function backToPause(){controlsOverlay.classList.add("hidden");pauseOverlay.classList.remove("hidden")}
+function quitToMenu(){
+  paused=false;keys={};pauseOverlay.classList.add("hidden");controlsOverlay.classList.add("hidden");stopGame();state=null;go("home");
+}
+function togglePause(){
+  if(!state||state.over)return;
+  if(!controlsOverlay.classList.contains("hidden")){backToPause();return}
+  if(paused)closePauseMenu();else openPauseMenu();
+}
+$("#resumeBtn").onclick=closePauseMenu;
+$("#pauseControlsBtn").onclick=openControlsFromPause;
+$("#pauseMenuBtn").onclick=quitToMenu;
+$("#backToPauseBtn").onclick=backToPause;
+$("#closeControlsBtn").onclick=closePauseMenu;
+addEventListener("keydown",e=>{
+  const k=e.key.toLowerCase();
+  if(e.key==="Escape"){e.preventDefault();togglePause();return}
+  if(paused)return;
+  if(["a","d","w","s","j","k","l"].includes(k)){keys[k]=true;registerKeyDown(k,e.repeat);e.preventDefault()}
+});
 addEventListener("keyup",e=>{keys[e.key.toLowerCase()]=false});
-$$(".mobile-controls button").forEach(b=>{const k=b.dataset.key;b.onpointerdown=e=>{e.preventDefault();keys[k]=true;registerKeyDown(k,false)};b.onpointerup=b.onpointercancel=()=>keys[k]=false});
-function togglePause(){if(!state)return;paused=!paused;announce(paused?"PAUSADO":"FIGHT!",paused?999999:500)}
-$("#pauseBtn").onclick=togglePause;
+$(".mobile-controls button").forEach(b=>{const k=b.dataset.key;b.onpointerdown=e=>{e.preventDefault();if(paused)return;keys[k]=true;registerKeyDown(k,false)};b.onpointerup=b.onpointercancel=()=>keys[k]=false});
+$("#pauseBtn").onclick=openPauseMenu;
 renderRoster();renderMaps();
