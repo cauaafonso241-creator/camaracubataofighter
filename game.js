@@ -201,7 +201,7 @@ function showResult(win){
     $("#modalTitle").textContent=win?"VITÓRIA!":"DERROTA";
     $("#modalText").textContent=(win?fighters[selected].name:fighters[enemy].name)+" venceu a luta.";
     $("#rematch").textContent="REVANCHE";
-    $("#rematch").onclick=()=>startGame();
+    $("#rematch").onclick=()=>{$("#modal").classList.remove("show");startGame()};
   }else if(win&&tournament.round<2){
     $("#modalKicker").textContent="TORNEIO";
     $("#modalTitle").textContent="CLASSIFICADO!";
