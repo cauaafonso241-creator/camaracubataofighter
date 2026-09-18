@@ -69,12 +69,12 @@ export function createCharacterMoves(fighter){
   const specialA={
     id:"specialA",name:fighter.power,kind:ranged?"projectile":"special",startup:9,active:ranged?3:6,recovery:22,
     damage:95,hitstun:24,blockstun:16,hitstop:8,hitLevel:"mid",meterGain:3,meterCost:35,pushHit:2.7,pushBlock:1.3,
-    range:ranged?5.5:12.5,cancelStart:0,cancelEnd:0,cancelOnHit:["super"],cancelOnBlock:[],knockdown:false,
+    range:ranged?5.5:12.5,cancelStart:10,cancelEnd:14,cancelOnHit:["super"],cancelOnBlock:[],knockdown:false,
     projectile:ranged?{speed:1.05,lifetime:95,width:3.2,height:3.0,durability:1}:null
   };
   const specialB={
     id:"specialB",name:fighter.specialB,kind:"special",startup:11,active:6,recovery:24,damage:112,hitstun:26,blockstun:16,
-    hitstop:9,hitLevel:"mid",meterGain:4,meterCost:35,pushHit:3.3,pushBlock:1.5,range:10.8,cancelStart:0,cancelEnd:0,
+    hitstop:9,hitLevel:"mid",meterGain:4,meterCost:35,pushHit:3.3,pushBlock:1.5,range:10.8,cancelStart:12,cancelEnd:18,
     cancelOnHit:["super"],cancelOnBlock:[],knockdown:true,movement:3.8
   };
   const superMove={
