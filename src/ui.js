@@ -198,29 +198,42 @@ export class UIController{
     if(this.engine.recording){this.engine.stopDummyRecord();$("#recordDummyBtn").textContent="GRAVAR"}
     else{this.engine.startDummyRecord();$("#recordDummyBtn").textContent="PARAR"}
   }
+  menuContainer(){
+    const overlays=["#confirmOverlay","#controlsOverlay","#quickSettingsOverlay","#pauseOverlay"];
+    for(const sel of overlays){const el=$(sel);if(el&&!el.classList.contains("hidden"))return el}
+    return $(".screen.active");
+  }
   menuKeyboard(e){
-    if(this.currentScreen()==="arena")return;
-    const active=$(".screen.active");if(!active)return;
+    const active=this.menuContainer();if(!active)return;
+    if(this.currentScreen()==="arena"&&active.classList.contains("screen"))return;
     const focusable=[...active.querySelectorAll("button:not([disabled]),select,input")].filter(x=>x.offsetParent!==null);
     if(!focusable.length)return;
     const i=Math.max(0,focusable.indexOf(document.activeElement));
     if(["ArrowDown","ArrowRight"].includes(e.key)){e.preventDefault();focusable[(i+1)%focusable.length].focus()}
     if(["ArrowUp","ArrowLeft"].includes(e.key)){e.preventDefault();focusable[(i-1+focusable.length)%focusable.length].focus()}
     if(e.key==="Escape"){
-      const back=active.querySelector(".back");if(back){e.preventDefault();back.click()}
+      e.preventDefault();
+      if(active.id==="controlsOverlay"||active.id==="quickSettingsOverlay"){this.backToPause();return}
+      if(active.id==="confirmOverlay"){$("#confirmNo").click();return}
+      const back=active.querySelector(".back");if(back)back.click();
     }
   }
   menuPadLoop=()=>{
-    const pad=(navigator.getGamepads?.()||[])[0],screen=this.currentScreen();
-    if(pad&&screen!=="arena"){
+    const pad=(navigator.getGamepads?.()||[])[0],active=this.menuContainer();
+    const arenaWithoutOverlay=this.currentScreen()==="arena"&&active?.classList.contains("screen");
+    if(pad&&active&&!arenaWithoutOverlay){
       const now=performance.now(),down=pad.buttons[13]?.pressed||(pad.axes[1]||0)>.55,up=pad.buttons[12]?.pressed||(pad.axes[1]||0)<-.55;
       const a=pad.buttons[0]?.pressed,b=pad.buttons[1]?.pressed;
       if(now-this.padNav.lastMove>170&&(down||up)){
-        const active=$(".screen.active"),fs=[...active.querySelectorAll("button:not([disabled]),select,input")].filter(x=>x.offsetParent!==null);
+        const fs=[...active.querySelectorAll("button:not([disabled]),select,input")].filter(x=>x.offsetParent!==null);
         if(fs.length){const i=Math.max(0,fs.indexOf(document.activeElement)),n=down?(i+1)%fs.length:(i-1+fs.length)%fs.length;fs[n].focus();this.padNav.lastMove=now}
       }
       if(a&&!this.padNav.a)document.activeElement?.click?.();
-      if(b&&!this.padNav.b)$(".screen.active .back")?.click?.();
+      if(b&&!this.padNav.b){
+        if(active.id==="controlsOverlay"||active.id==="quickSettingsOverlay")this.backToPause();
+        else if(active.id==="confirmOverlay")$("#confirmNo").click();
+        else active.querySelector(".back")?.click?.();
+      }
       this.padNav.a=a;this.padNav.b=b;
     }
     requestAnimationFrame(this.menuPadLoop);
