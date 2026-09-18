@@ -150,3 +150,79 @@ repeating-linear-gradient(0deg,#aaa08e 0 2px,#d6cbb5 3px 72px)!important;border-
 .fighter.hit .fighter-head{filter:brightness(1.45) saturate(.7)}
 .combo-text{animation:comboPunch .18s ease-out}
 @keyframes comboPunch{from{transform:rotate(-5deg) scale(1.35);opacity:.2}to{transform:rotate(-5deg) scale(1);opacity:1}}
+
+/* ===== V7 COHESIVE FIGHTER ART + PAUSE UX ===== */
+.pause-overlay{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;background:rgba(2,8,18,.82);backdrop-filter:blur(6px)}
+.pause-overlay.hidden{display:none}.pause-card{width:min(540px,92vw);background:linear-gradient(180deg,#0d1a33,#071120);border:4px solid #9ac8ef;box-shadow:0 22px 70px #000b,0 0 0 4px #06101d;padding:30px;text-align:center}
+.pause-kicker{margin:0 0 5px;color:#6ee8ff;font-size:11px;font-weight:900;letter-spacing:.2em}.pause-card h2{margin:0;font-family:'Black Ops One';font-size:46px;color:#ffd54d;text-shadow:3px 3px #7e241a,5px 5px #000}.pause-card>p:not(.pause-kicker){color:#b8cbe3}.pause-actions{display:grid;gap:11px;margin-top:22px}.pause-actions button{min-height:52px}.pause-actions .danger{background:#2a1014;border:1px solid #8f3540;color:#ffdce0}.controls-card{width:min(720px,94vw)}.controls-list{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:24px 0;text-align:left}.controls-list>div{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:58px;padding:12px 14px;background:#101d34;border:1px solid #2d466a}.controls-list .wide-control{grid-column:1/-1}.control-keys{display:flex;align-items:center;gap:5px}.controls-list span:last-child{color:#77e3ff;font-weight:800}.controls-list kbd{min-width:32px;height:32px;font-size:12px}
+
+/* The old capsule rig is fully superseded below. */
+.fighter{width:220px!important;height:350px!important;filter:drop-shadow(0 15px 10px #0009)!important}
+.fighter .sprite{position:relative!important;width:220px!important;height:330px!important;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:visible!important;animation:none!important;display:block!important}
+.fighter .sprite:before,.fighter .sprite:after,.fighter:before,.fighter:after{content:none!important}
+.fighter-rig{position:relative;width:220px;height:330px;transform-origin:50% 92%;animation:fighterIdle 1.12s ease-in-out infinite}
+@keyframes fighterIdle{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-3px) rotate(-.6deg)}}
+.fighter.walking .fighter-rig{animation:fighterWalk .26s ease-in-out infinite alternate}
+@keyframes fighterWalk{from{transform:translateY(0) rotate(-1deg)}to{transform:translateY(-5px) rotate(1deg)}}
+
+/* Head integrated into shoulders, no floating circle. */
+.fighter .head{position:absolute;z-index:8;top:14px;left:67px;width:88px;height:90px;transform:rotate(-2deg)}
+.fighter .face-frame{width:88px;height:90px;overflow:hidden;border:4px solid #07101b;border-radius:44% 44% 48% 48%;background:#c58b67;box-shadow:0 4px 0 #0007,inset 0 -7px #0002}
+.fighter .face-frame img{width:118%;height:118%;object-fit:cover;object-position:center 16%;transform:translate(-8%,-5%);filter:saturate(.96) contrast(1.16) brightness(.98)}
+.fighter.enemy .face-frame img{transform:translate(-8%,-5%) scaleX(-1)}
+
+/* Compact torso, angled shoulders and readable lapels. */
+.fighter .torso{position:absolute;z-index:5;top:88px;left:50px;width:122px;height:118px;background:linear-gradient(90deg,#0b1422 0 10%,var(--fighter-color) 20% 80%,#08111e 90%);border:4px solid #07101b;border-radius:20px 20px 12px 12px;clip-path:polygon(9% 0,91% 0,100% 16%,93% 100%,7% 100%,0 16%);box-shadow:inset 10px 0 #ffffff10,inset -10px 0 #0005}
+.fighter .torso .shirt{position:absolute;left:44px;top:1px;width:35px;height:69px;background:#eef2f6;clip-path:polygon(0 0,100% 0,72% 100%,28% 100%)}
+.fighter .torso .tie{position:absolute;left:55px;top:24px;width:13px;height:55px;background:#9e1c24;clip-path:polygon(50% 0,100% 15%,72% 100%,28% 100%,0 15%)}
+.jacket-lapel{position:absolute;top:2px;width:37px;height:67px;background:#ffffff12}.lapel-left{left:18px;clip-path:polygon(0 0,100% 0,54% 100%,0 50%)}.lapel-right{right:18px;clip-path:polygon(0 0,100% 0,100% 50%,46% 100%)}
+
+/* Segmented arms bend at an elbow instead of behaving like tubes. */
+.fighter .arm{position:absolute!important;top:92px!important;width:68px!important;height:138px!important;background:none!important;border:0!important;border-radius:0!important;z-index:4!important;transform:none!important}
+.fighter .arm-back{left:17px!important;z-index:3!important}.fighter .arm-front{right:15px!important;z-index:7!important}
+.fighter .arm .upper,.fighter .arm .forearm{position:absolute;display:block;background:linear-gradient(90deg,#09121f 0 10%,var(--fighter-color) 25% 80%,#07101c 95%);border:4px solid #07101b;border-radius:15px;transform-origin:50% 8px;transition:transform 70ms linear}
+.fighter .arm .upper{width:29px;height:65px;left:20px;top:0}.fighter .arm .forearm{width:27px;height:62px;left:22px;top:49px}
+.fighter .arm .hand{position:absolute!important;left:22px!important;top:99px!important;bottom:auto!important;width:29px!important;height:29px!important;background:#cf946e!important;border:4px solid #07101b!important;border-radius:50%!important}
+.fighter .arm-back .upper{transform:rotate(26deg)}.fighter .arm-back .forearm{transform:rotate(-12deg)}.fighter .arm-front .upper{transform:rotate(-30deg)}.fighter .arm-front .forearm{transform:rotate(17deg)}
+
+/* Two-piece legs create knees and a grounded fighting stance. */
+.fighter .leg{position:absolute!important;top:192px!important;bottom:auto!important;width:78px!important;height:126px!important;background:none!important;border:0!important;border-radius:0!important;z-index:3!important;transform:none!important}
+.fighter .leg-back{left:47px!important}.fighter .leg-front{right:40px!important;z-index:4!important}
+.fighter .leg .thigh,.fighter .leg .calf{position:absolute;display:block;width:34px;background:linear-gradient(90deg,#080d16,#182338 48%,#080d16);border:4px solid #07101b;border-radius:12px;transform-origin:50% 8px;transition:transform 80ms linear}
+.fighter .leg .thigh{height:68px;left:20px;top:0}.fighter .leg .calf{height:68px;left:20px;top:52px}
+.fighter .leg .shoe{position:absolute!important;left:10px!important;top:104px!important;bottom:auto!important;width:54px!important;height:23px!important;background:#03060b!important;border:4px solid #07101b!important;border-radius:55% 42% 18% 18%!important}
+.fighter .leg-back .thigh{transform:rotate(15deg)}.fighter .leg-back .calf{transform:rotate(-13deg)}.fighter .leg-front .thigh{transform:rotate(-12deg)}.fighter .leg-front .calf{transform:rotate(15deg)}
+.fighter .shadow{width:184px!important;height:23px!important;left:18px!important;bottom:2px!important}
+
+/* Character-specific art accents without changing identity. */
+.fighter[data-special="dogs"] .torso{background:linear-gradient(90deg,#cdd4da 0 9%,#f0f1ee 21% 79%,#c9d0d7 91%);box-shadow:inset 12px 0 #fff8,inset -12px 0 #8794a333}.fighter[data-special="dogs"] .arm .upper,.fighter[data-special="dogs"] .arm .forearm{background:linear-gradient(90deg,#c4ccd4,#f4f4f1 42% 72%,#bcc5cf)}
+.fighter[data-special="kickbox"] .tie,.fighter[data-special="kick"] .tie{background:#1d467d}
+
+/* Props are illustrated pieces anchored into the front-hand area. */
+.fighter-prop{position:absolute;z-index:10;pointer-events:none;filter:drop-shadow(2px 4px 0 #0005);transform-origin:50% 50%}
+.prop-cavaco{left:74px;top:126px;width:112px;height:75px;transform:rotate(-13deg)}
+.prop-cavaco .prop-body{position:absolute;left:4px;top:19px;width:52px;height:48px;border:4px solid #5c310f;border-radius:48% 52% 45% 45%;background:radial-gradient(circle at 52% 46%,#351b0b 0 9%,transparent 10%),linear-gradient(#e6a445,#b66522)}
+.prop-cavaco .prop-neck{position:absolute;left:48px;top:33px;width:60px;height:12px;border:3px solid #4c2a12;background:#b8732e;transform:rotate(-5deg);border-radius:3px}
+.prop-cavaco .prop-strings{position:absolute;left:18px;top:43px;width:82px;height:2px;background:#f5d591;box-shadow:0 4px #f5d591}
+.prop-scissors{left:115px;top:126px;width:76px;height:77px;transform:rotate(-17deg)}.scissor-ring{position:absolute;width:28px;height:28px;border:7px solid #a93237;border-radius:50%;bottom:2px}.r1{left:5px}.r2{left:32px}.scissor-blade{position:absolute;width:10px;height:62px;background:linear-gradient(90deg,#b9c7d4,#f5f7f9,#93a2b1);border:2px solid #45515c;bottom:25px;transform-origin:bottom}.b1{left:30px;transform:rotate(-26deg)}.b2{left:35px;transform:rotate(26deg)}
+.prop-process{left:120px;top:130px;width:54px;height:70px;background:#f6f3df;border:3px solid #202937;transform:rotate(8deg);padding-top:9px;text-align:center;color:#18202a;font:bold 10px Inter}.prop-process i{display:block;width:34px;height:2px;background:#68717a;margin:7px auto 0}
+.prop-water{left:122px;top:129px;width:48px;height:67px;border:4px solid #1c5f9b;border-radius:14px 14px 18px 18px;background:linear-gradient(#9ce6ff99,#3f9be3cc)}.gallon-handle{position:absolute;left:12px;top:-13px;width:20px;height:18px;border:4px solid #1c5f9b;border-bottom:0;border-radius:8px 8px 0 0}.gallon-cap{position:absolute;left:17px;top:-19px;width:12px;height:7px;background:#1a67a8}
+.prop-dumbbell{left:105px;top:148px;width:89px;height:30px;transform:rotate(-12deg)}.db-bar{position:absolute;left:20px;top:11px;width:50px;height:8px;background:#aab4bf;border:2px solid #27323c}.db-left,.db-right{position:absolute;top:2px;width:22px;height:26px;background:#202832;border:3px solid #07101b;border-radius:5px}.db-left{left:0}.db-right{right:0}
+.prop-ball{left:130px;top:141px;font-size:42px;line-height:1}
+
+/* Stronger pose language: anticipation, impact, recovery. */
+.fighter[data-phase="startup"] .fighter-rig{transform:translateX(-5px) rotate(-2deg)}
+.fighter.attack[data-phase="startup"] .arm-front .upper{transform:rotate(-52deg)}.fighter.attack[data-phase="startup"] .arm-front .forearm{transform:rotate(38deg)}
+.fighter.attack[data-phase="active"] .fighter-rig{transform:translateX(8px) rotate(2deg)}.fighter.attack[data-phase="active"] .arm-front .upper{transform:rotate(-92deg)}.fighter.attack[data-phase="active"] .arm-front .forearm{transform:rotate(-91deg)}.fighter.attack[data-phase="active"] .arm-front .hand{transform:scale(1.12)}
+.fighter.kick[data-phase="startup"] .fighter-rig{transform:translateX(-4px) rotate(-2deg)}.fighter.kick[data-phase="startup"] .leg-front .thigh{transform:rotate(10deg)}.fighter.kick[data-phase="startup"] .leg-front .calf{transform:rotate(28deg)}
+.fighter.kick[data-phase="active"] .fighter-rig{transform:translateX(7px) rotate(3deg)}.fighter.kick[data-phase="active"] .leg-front .thigh{transform:rotate(-67deg)}.fighter.kick[data-phase="active"] .leg-front .calf{transform:rotate(-45deg)}.fighter.kick[data-phase="active"] .leg-front .shoe{transform:scale(1.08)}
+.fighter[data-phase="recovery"] .fighter-rig{filter:brightness(.96)}
+.fighter.block .arm-front .upper{transform:rotate(-72deg)!important}.fighter.block .arm-front .forearm{transform:rotate(42deg)!important}.fighter.block .arm-back .upper{transform:rotate(-45deg)!important}.fighter.block .arm-back .forearm{transform:rotate(55deg)!important}.fighter.block .torso{filter:brightness(.78)}
+.fighter.specialFx .fighter-prop{animation:propSwing .16s ease-in-out 3 alternate}
+@keyframes propSwing{from{transform:rotate(-14deg) scale(1)}to{transform:rotate(12deg) scale(1.08)}}
+.fighter[data-special="cavaco"].specialFx .arm-front .upper{transform:rotate(-62deg)!important}.fighter[data-special="cavaco"].specialFx .arm-front .forearm{transform:rotate(-25deg)!important}.fighter[data-special="cavaco"].specialFx .arm-back .upper{transform:rotate(-40deg)!important}.fighter[data-special="cavaco"].specialFx .arm-back .forearm{transform:rotate(42deg)!important}
+.fighter.hit .fighter-rig{filter:brightness(1.35) saturate(.8)}
+.fighter.dashing .fighter-rig{animation:dashPose .11s alternate infinite}
+@keyframes dashPose{to{transform:skewX(-7deg) translateX(6px)}}
+
+@media(max-width:900px){.controls-list{grid-template-columns:1fr}.controls-list .wide-control{grid-column:auto}.fighter{transform-origin:bottom}.fighter:not(.enemy){transform:scale(.75)!important}.fighter.enemy{transform:scaleX(-1) scale(.75)!important}}
