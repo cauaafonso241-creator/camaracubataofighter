@@ -509,9 +509,10 @@ export class GameEngine{
   }
   updateTrainingRules(){
     if(this.mode!=="training")return;
-    const meter=document.querySelector("#trainingMeter")?.value||"normal";
+    const meter=document.querySelector("#trainingMeter")?.value||"normal",life=document.querySelector("#trainingLife")?.value||"infinite";
     if(meter==="infinite")this.p1.meter=this.p2.meter=100;else if(meter==="empty")this.p1.meter=this.p2.meter=0;
-    if(this.p1.hp<300)this.p1.hp=Math.min(1000,this.p1.hp+4);if(this.p2.hp<300)this.p2.hp=Math.min(1000,this.p2.hp+4);
+    if(life==="infinite"){this.p1.hp=this.p1.redHp=1000;this.p2.hp=this.p2.redHp=1000}
+    else if(life==="regen"){this.p1.hp=Math.min(1000,this.p1.hp+3);this.p2.hp=Math.min(1000,this.p2.hp+3)}
   }
   resolveTimeout(){
     if(this.roundOver)return;
@@ -535,7 +536,14 @@ export class GameEngine{
     else{this.round++;this.resetRound()}
   }
   setDebug(v){this.debug=!!v}
-  resetTrainingPosition(){if(this.mode!=="training")return;const w1=this.p1.wins,w2=this.p2.wins;this.p1.resetRound(28);this.p2.resetRound(72);this.p1.wins=w1;this.p2.wins=w2;this.p1.meter=this.p2.meter=100;this.projectiles=[]}
+  resetTrainingPosition(){
+    if(this.mode!=="training")return;
+    const pos=document.querySelector("#trainingPosition")?.value||"center";
+    const pair=pos==="left"?[12,38]:pos==="right"?[62,88]:[28,72];
+    const w1=this.p1.wins,w2=this.p2.wins;this.p1.resetRound(pair[0]);this.p2.resetRound(pair[1]);this.p1.wins=w1;this.p2.wins=w2;
+    if((document.querySelector("#trainingMeter")?.value||"normal")==="infinite")this.p1.meter=this.p2.meter=100;
+    this.projectiles=[];this.comboOwner=null;this.comboTimer=0;
+  }
 }
 
 export {STATES};
