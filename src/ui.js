@@ -42,8 +42,8 @@ export class UIController{
     $("#backFromQuickSettings").onclick=()=>{this.saveQuickSettings();$("#quickSettingsOverlay").classList.add("hidden");$("#pauseOverlay").classList.remove("hidden")};
     $("#confirmNo").onclick=()=>{$("#confirmOverlay").classList.add("hidden");this.pendingConfirm=null};
     $("#confirmYes").onclick=()=>{const fn=this.pendingConfirm;$("#confirmOverlay").classList.add("hidden");this.pendingConfirm=null;fn?.()};
-    $("#resultSelectBtn").onclick=()=>{this.hideResult();this.beginSelection()};
-    $("#resultMenuBtn").onclick=()=>{this.hideResult();this.show("home")};
+    $("#resultSelectBtn").onclick=()=>{this.engine.stop();this.hideResult();this.beginSelection()};
+    $("#resultMenuBtn").onclick=()=>{this.engine.stop();this.hideResult();this.show("home")};
     $("#trainingResetBtn").onclick=()=>this.engine.resetTrainingPosition();
     $("#debugBoxesBtn").onclick=()=>{this.engine.setDebug(!this.engine.debug);$("#debugBoxesBtn").classList.toggle("active",this.engine.debug)};
     $("#recordDummyBtn").onclick=()=>this.toggleDummyRecord();
@@ -187,11 +187,11 @@ export class UIController{
   }
   hideOverlays(){$("#pauseOverlay").classList.add("hidden");$("#controlsOverlay").classList.add("hidden");$("#quickSettingsOverlay").classList.add("hidden");$("#confirmOverlay").classList.add("hidden")}
   renderSettings(){
-    $("#masterVolume").value=this.settings.get("masterVolume");$("#reduceShake").checked=this.settings.get("reduceShake");$("#reduceFlashes").checked=this.settings.get("reduceFlashes");
+    $("#masterVolume").value=this.settings.get("masterVolume");$("#musicVolume").value=this.settings.get("musicVolume");$("#sfxVolume").value=this.settings.get("sfxVolume");$("#uiVolume").value=this.settings.get("uiVolume");$("#reduceShake").checked=this.settings.get("reduceShake");$("#reduceFlashes").checked=this.settings.get("reduceFlashes");
     $("#simpleSpecial").checked=this.settings.get("simpleSpecial");$("#forceTouch").checked=this.settings.get("forceTouch");
   }
   saveSettings(){
-    this.audio.setVolume($("#masterVolume").value);this.settings.patch({reduceShake:$("#reduceShake").checked,reduceFlashes:$("#reduceFlashes").checked,simpleSpecial:$("#simpleSpecial").checked,forceTouch:$("#forceTouch").checked});
+    this.audio.setVolume($("#masterVolume").value);this.audio.setCategory("music",$("#musicVolume").value);this.audio.setCategory("sfx",$("#sfxVolume").value);this.audio.setCategory("ui",$("#uiVolume").value);this.settings.patch({reduceShake:$("#reduceShake").checked,reduceFlashes:$("#reduceFlashes").checked,simpleSpecial:$("#simpleSpecial").checked,forceTouch:$("#forceTouch").checked});
     this.audio.play("confirm");this.show("home");
   }
   toggleDummyRecord(){
