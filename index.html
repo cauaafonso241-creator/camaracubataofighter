@@ -8,6 +8,18 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+<svg class="svg-defs" width="0" height="0" aria-hidden="true">
+  <defs>
+    <filter id="arcadePortraitFilter" color-interpolation-filters="sRGB">
+      <feComponentTransfer>
+        <feFuncR type="discrete" tableValues="0 .16 .32 .48 .65 .82 1"/>
+        <feFuncG type="discrete" tableValues="0 .15 .30 .46 .63 .81 1"/>
+        <feFuncB type="discrete" tableValues="0 .14 .29 .45 .62 .80 1"/>
+      </feComponentTransfer>
+      <feColorMatrix type="saturate" values=".82"/>
+    </filter>
+  </defs>
+</svg>
 <div id="app">
   <section id="boot" class="screen active boot-screen" aria-label="Carregando">
     <div class="boot-card">
