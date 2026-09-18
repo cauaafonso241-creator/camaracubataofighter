@@ -194,7 +194,7 @@ export class GameEngine{
     if(f.type==="process")return `<div class="fighter-prop prop-process"><span>PROC.</span><i></i><i></i><i></i></div>`;
     if(f.type==="water")return `<div class="fighter-prop prop-water"><span class="gallon-handle"></span><span class="gallon-cap"></span></div>`;
     if(f.type==="dumbbell")return `<div class="fighter-prop prop-dumbbell"><span class="db-left"></span><span class="db-bar"></span><span class="db-right"></span></div>`;
-    if(f.type==="ball")return `<div class="fighter-prop prop-ball">⚽</div>`;return "";
+    if(f.type==="ball")return `<div class="fighter-prop prop-ball"><i></i></div>`;return "";
   }
   fighterMarkup(f){
     return `<div class="fighter-rig">
