@@ -12,14 +12,15 @@
     <div class="scanlines"></div>
     <div class="hero">
       <div class="seal">CCF</div>
-      <p class="eyebrow">15 VEREADORES • 1 ARENA • ARCADE</p>
-      <h1>CÂMARA DE<br><span>CUBATÃO</span></h1>
-      <p class="tagline">O PODER EM SUAS MÃOS • ESCOLHA SEU VEREADOR</p>
-      <div class="home-actions">
-        <button class="primary" data-go="select">JOGAR AGORA</button>
-        <button class="secondary" data-go="how">COMO JOGAR</button>
+      <p class="eyebrow">CUBATÃO • SP • ARCADE</p>
+      <h1>CÂMARA DE<br><span>CUBATÃO</span> FIGHTER</h1>
+      <p class="tagline">15 LUTADORES • 3 ARENAS • 2 MODOS DE JOGO</p>
+      <div class="mode-menu">
+        <button id="quickModeBtn" class="mode-btn primary"><b>LUTA SIMPLES</b><small>Escolha seu lutador e sua arena</small></button>
+        <button id="tournamentModeBtn" class="mode-btn secondary"><b>MODO TORNEIO</b><small>Três lutas até o título</small></button>
+        <button class="mode-btn secondary" data-go="how"><b>COMO JOGAR</b><small>Controles e regras</small></button>
       </div>
-      <p class="disclaimer">Paródia fictícia para entretenimento. Golpes, poderes e situações não representam fatos reais.</p>
+      <p class="disclaimer">Paródia fictícia para entretenimento. Golpes e poderes são inteiramente fictícios.</p>
     </div>
   </section>
 
@@ -29,10 +30,44 @@
       <div class="selected-card" id="selectedCard"></div>
       <div>
         <h2>ESCOLHA SEU <span>VEREADOR</span></h2>
-        <p class="hint">Clique em um personagem e confirme para começar.</p>
+        <p class="hint">Selecione o personagem que vai representar você na arena.</p>
         <div id="roster" class="roster"></div>
-        <button id="fightBtn" class="primary wide">ENTRAR NA ARENA</button>
+        <button id="fightBtn" class="primary wide">CONTINUAR → ESCOLHER ARENA</button>
       </div>
+    </div>
+  </section>
+
+  <section id="maps" class="screen">
+    <header class="topbar"><button class="back" data-go="select">← LUTADOR</button><div>SELEÇÃO DE ARENA</div><span>3 MAPAS</span></header>
+    <div class="map-wrap">
+      <p class="eyebrow center">ESCOLHA O PALCO DA LUTA</p>
+      <h2>SELECIONE A <span>ARENA</span></h2>
+      <div id="mapGrid" class="map-grid"></div>
+      <div id="mapInfo" class="map-info"></div>
+      <button id="mapConfirm" class="primary wide">CONFIRMAR ARENA</button>
+    </div>
+  </section>
+
+  <section id="tournament" class="screen">
+    <header class="topbar"><button class="back" data-go="home">← SAIR</button><div>MODO TORNEIO</div><span>RUMO AO TÍTULO</span></header>
+    <div class="tournament-wrap">
+      <p class="eyebrow center">CHAVE DO TORNEIO</p>
+      <h2 id="tournamentTitle">CAMINHO ATÉ A <span>FINAL</span></h2>
+      <div id="bracket" class="bracket"></div>
+      <button id="nextTournamentBtn" class="primary wide">PRÓXIMA LUTA</button>
+    </div>
+  </section>
+
+  <section id="vs" class="screen">
+    <div class="vs-wrap">
+      <p class="eyebrow center" id="vsMode">LUTA SIMPLES</p>
+      <div class="vs-grid">
+        <div class="vs-card red"><img id="vsP1Img" alt=""><h2 id="vsP1Name"></h2><p id="vsP1Power"></p></div>
+        <div class="vs-mark">VS</div>
+        <div class="vs-card blue"><img id="vsP2Img" alt=""><h2 id="vsP2Name"></h2><p id="vsP2Power"></p></div>
+      </div>
+      <div class="vs-arena"><small>ARENA</small><b id="vsArena"></b></div>
+      <button id="startFightBtn" class="primary">FIGHT!</button>
     </div>
   </section>
 
@@ -44,23 +79,26 @@
         <div><kbd>A</kbd><kbd>D</kbd><b>Mover</b></div><div><kbd>W</kbd><b>Pular</b></div><div><kbd>S</kbd><b>Defender</b></div>
         <div><kbd>J</kbd><b>Soco</b></div><div><kbd>K</kbd><b>Chute</b></div><div><kbd>L</kbd><b>Especial</b></div>
       </div>
-      <p>Encha a barra de energia atacando. O especial exige 50 de energia. Vença dois rounds para ganhar a partida.</p>
-      <button class="primary" data-go="select">ESCOLHER LUTADOR</button>
+      <p>Ataque para carregar energia. Com 50 de energia, use o especial. Vença dois rounds para ganhar a luta.</p>
+      <button id="howPlayBtn" class="primary">LUTA SIMPLES</button>
     </div>
   </section>
 
   <section id="arena" class="screen">
     <div id="stage" class="stage">
+      <img id="stageBg" class="stage-bg" alt="">
       <div class="skyline"></div><div class="chamber"><div class="flags">▥ 🇧🇷 ▥</div><div class="crest">CÂMARA MUNICIPAL DE<br><strong>CUBATÃO</strong></div><div class="benches"></div></div>
       <div class="hud">
-        <div class="fighter-hud"><div class="hud-name" id="p1Name"></div><div class="health"><i id="p1Health"></i></div><div class="energy"><i id="p1Energy"></i></div></div>
-        <div class="roundbox"><b id="timer">60</b><span id="roundLabel">ROUND 1</span></div>
-        <div class="fighter-hud right"><div class="hud-name" id="p2Name"></div><div class="health"><i id="p2Health"></i></div><div class="energy"><i id="p2Energy"></i></div></div>
+        <div class="fighter-hud"><div class="hud-name" id="p1Name"></div><div class="health"><i id="p1Health"></i></div><div class="energy"><i id="p1Energy"></i></div><div class="round-wins" id="p1Wins"></div></div>
+        <div class="roundbox"><b id="timer">75</b><span id="roundLabel">ROUND 1</span></div>
+        <div class="fighter-hud right"><div class="hud-name" id="p2Name"></div><div class="health"><i id="p2Health"></i></div><div class="energy"><i id="p2Energy"></i></div><div class="round-wins" id="p2Wins"></div></div>
       </div>
       <div id="announcement" class="announcement"></div>
-      <div id="p1" class="fighter"><div class="sprite"><span></span></div><div class="shadow"></div></div>
-      <div id="p2" class="fighter enemy"><div class="sprite"><span></span></div><div class="shadow"></div></div>
+      <div id="comboText" class="combo-text"></div>
+      <div id="p1" class="fighter"><div class="sprite"></div><div class="shadow"></div></div>
+      <div id="p2" class="fighter enemy"><div class="sprite"></div><div class="shadow"></div></div>
       <div class="floor"></div>
+      <div class="stage-name" id="stageName"></div>
       <button id="pauseBtn" class="pause">Ⅱ</button>
     </div>
     <div class="mobile-controls">
