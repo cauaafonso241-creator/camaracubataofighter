@@ -37,11 +37,16 @@ class AIController{
     if(this.cooldown>0){this.cooldown--;return this.intent}
     this.cooldown=rand(cfg.reaction[0],cfg.reaction[1]);
     const d=Math.abs(opponent.x-actor.x),toward=actor.x<opponent.x?1:-1,away=-toward;
+    const atCorner=actor.x<10||actor.x>90,lowLife=actor.hp<350,opponentAir=!opponent.onGround;
     const intent={move:0,guard:false,down:false,action:null};
     if(Math.random()<cfg.error){intent.move=Math.random()<.5?toward:away;this.intent=intent;return intent}
+    if(opponentAir&&d<15&&Math.random()<.68){intent.action="heavy";this.intent=intent;return intent}
+    if(atCorner&&d<14&&Math.random()<.42){intent.guard=Math.random()<.55;intent.move=intent.guard?0:(actor.x<50?1:-1);this.intent=intent;return intent}
+    if(lowLife&&d<17&&Math.random()<cfg.blockChance+.12){intent.guard=true;intent.down=opponent.move?.hitLevel==="low";this.intent=intent;return intent}
     if(opponent.move&&d<16&&Math.random()<cfg.blockChance){
       intent.guard=true;intent.down=opponent.move.hitLevel==="low";this.intent=intent;return intent;
     }
+    if(opponent.move&&engine.phaseOf(opponent)==="RECOVERY"&&d<13&&Math.random()<.6){intent.action="kick";this.intent=intent;return intent}
     if(d>24){
       intent.move=toward;
       if(actor.meter>=35&&Math.random()<cfg.specialChance)intent.action=Math.random()<.65?"specialA":"specialB";
