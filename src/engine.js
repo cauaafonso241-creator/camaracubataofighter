@@ -366,7 +366,7 @@ export class GameEngine{
     let dx=0;
     if(inp.held.has("left"))dx=-1;if(inp.held.has("right"))dx=1;
     if(dx){
-      const forward=dx===a.facing,spd=forward?.34:.27;a.x+=dx*spd;a.state=STATES.WALK;
+      const spd=(dx===a.facing)?0.34:0.27;a.x+=dx*spd;a.state=STATES.WALK;
     }else if(a.state===STATES.WALK)a.state=STATES.IDLE;
   }
   updateMove(a,side){
