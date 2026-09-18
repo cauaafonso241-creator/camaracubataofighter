@@ -157,10 +157,10 @@ export class GameEngine{
     this.p1=new Fighter(config.p1Index,20,"p1");this.p2=new Fighter(config.p2Index,80,"p2");
     this.input.setP2Enabled(config.opponentType==="p2"||this.mode==="training");
     this.ai=new AIController(config.difficulty||this.settings.get("difficulty")||"normal");
-    this.projectiles=[];this.setupArena();this.setupFighterDOM("p1",this.p1);this.setupFighterDOM("p2",this.p2);this.resetRound(true);
+    this.projectiles=[];this.setupArena();this.audio.startMusic?.(maps[config.mapIndex]?.id);this.setupFighterDOM("p1",this.p1);this.setupFighterDOM("p2",this.p2);this.resetRound(true);
     this.running=true;this.lastTime=performance.now();this.acc=0;this.loop(this.lastTime);
   }
-  stop(){this.running=false;if(this.raf)cancelAnimationFrame(this.raf);this.raf=0;this.projectiles=[]}
+  stop(){this.running=false;if(this.raf)cancelAnimationFrame(this.raf);this.raf=0;this.projectiles=[];this.audio.stopMusic?.()}
   pause(v=true){this.paused=v;this.input.clear();if(!v)this.lastTime=performance.now()}
   loop=(now)=>{
     if(!this.running)return;
