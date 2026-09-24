@@ -93,24 +93,42 @@ function poseFor(f,state,move,phase,frame){
   return p;
 }
 function drawSuit(c,f,p){
-  const main=f.type==="dogs"?"#e6e7e1":f.color||"#315d9e",shade=darken(main,.35),light=lighten(main,.18),skin=f.look?.skin||"#b97955";
-  // legs
-  drawLimb(c,-5+p.backLeg[0]*.2,-14,p.backLeg[2],p.backLeg[3],7,shade);
-  drawShoe(c,p.backLeg[2]-5,p.backLeg[3]-1,11,5);
-  drawLimb(c,5+p.frontLeg[0]*.2,-14,p.frontLeg[2],p.frontLeg[3],8,darken(main,.25));
-  drawShoe(c,p.frontLeg[2]-4,p.frontLeg[3]-1,12,5);
-  // torso
-  poly(c,[[-13,-39],[13,-39],[17,-14],[9,-8],[-9,-8],[-17,-14]],main);
-  rect(c,-5,-38,10,18,"#eef0ea","#07101b",1);poly(c,[[-2,-36],[2,-36],[1,-20],[-1,-20]],"#a5222a","#07101b",1);
-  poly(c,[[-13,-39],[-2,-28],[-7,-15],[-15,-18]],light,"#07101b",1);poly(c,[[13,-39],[2,-28],[7,-15],[15,-18]],shade,"#07101b",1);
-  if(f.type==="dogs"){rect(c,-17,-35,5,24,"#f6f6f0","#07101b",1);rect(c,12,-35,5,24,"#f6f6f0","#07101b",1);line(c,-2,-27,-8,-18,"#204f78",2);circle(c,-8,-17,2,"#d9d9d3","#07101b",1)}
-  // arms
-  drawLimb(c,-10,-34,p.backArm[2],p.backArm[3],7,shade);circle(c,p.backArm[2],p.backArm[3],4,skin);
-  drawLimb(c,10,-34,p.frontArm[2],p.frontArm[3],8,main);circle(c,p.frontArm[2],p.frontArm[3],4,skin);
+  const doctor=f.outfit==="doctor"||f.type==="dogs";
+  const main=doctor?"#f0efe8":f.color||"#315d9e";
+  const shade=doctor?"#c7cbd0":darken(main,.35),light=doctor?"#ffffff":lighten(main,.18),skin=f.look?.skin||"#b97955";
+  const trouser=doctor?"#233454":darken(main,.32);
+
+  // strong arcade legs
+  drawLimb(c,-5+p.backLeg[0]*.2,-14,p.backLeg[2],p.backLeg[3],8,darken(trouser,.18));
+  drawShoe(c,p.backLeg[2]-6,p.backLeg[3]-1,12,5);
+  drawLimb(c,5+p.frontLeg[0]*.2,-14,p.frontLeg[2],p.frontLeg[3],9,trouser);
+  drawShoe(c,p.frontLeg[2]-5,p.frontLeg[3]-1,13,5);
+
+  // torso + lapels
+  poly(c,[[-14,-40],[14,-40],[18,-14],[10,-8],[-10,-8],[-18,-14]],main);
+  rect(c,-5,-39,10,19,doctor?"#dfe9f2":"#eef0ea","#07101b",1);
+  poly(c,[[-2,-37],[2,-37],[1,-20],[-1,-20]],doctor?"#174e87":"#a5222a","#07101b",1);
+  poly(c,[[-14,-40],[-2,-28],[-7,-14],[-16,-18]],light,"#07101b",1);
+  poly(c,[[14,-40],[2,-28],[7,-14],[16,-18]],shade,"#07101b",1);
+
+  // doctor coat, stethoscope and pockets
+  if(doctor){
+    rect(c,-18,-36,5,25,"#ffffff","#07101b",1);rect(c,13,-36,5,25,"#ffffff","#07101b",1);
+    rect(c,-13,-20,7,6,"#dce1e5","#8a939d",1);rect(c,6,-20,7,6,"#dce1e5","#8a939d",1);
+    line(c,-2,-28,-9,-19,"#173d67",2);line(c,2,-28,9,-19,"#173d67",2);
+    circle(c,-9,-18,2.5,"#d9d9d3","#07101b",1);circle(c,9,-18,2.5,"#d9d9d3","#07101b",1);
+  }
+
+  // broad outlined arms and readable hands
+  drawLimb(c,-10,-34,p.backArm[2],p.backArm[3],8,shade);circle(c,p.backArm[2],p.backArm[3],4.4,skin);
+  drawLimb(c,10,-34,p.frontArm[2],p.frontArm[3],9,main);circle(c,p.frontArm[2],p.frontArm[3],4.6,skin);
+
+  // blue-suit highlight that mirrors the reference hero
+  if(f.outfit==="blueSuit"){rect(c,-12,-38,3,24,"#4f7dea",null);rect(c,10,-35,2,18,"#193c9c",null)}
 }
 function drawCavaco(c){
-  c.save();c.translate(5,-24);c.rotate(-.18);
-  circle(c,8,2,9,"#c9802f","#4b2c16",2);circle(c,8,2,3,"#3f2415",null);rect(c,15,-1,22,5,"#ad6c2b","#4b2c16",2);rect(c,35,-2,6,7,"#6b421f","#4b2c16",1);
+  c.save();c.translate(4,-24);c.rotate(-.16);
+  circle(c,8,2,10,"#d28a33","#4b2c16",2);circle(c,8,2,3,"#3f2415",null);rect(c,15,-1,24,5,"#b9762e","#4b2c16",2);rect(c,38,-2,7,7,"#6b421f","#4b2c16",1);
   line(c,12,0,39,0,"#f4d99d",1);line(c,12,3,39,3,"#f4d99d",1);c.restore();
 }
 function drawScissors(c){c.save();c.translate(18,-25);c.rotate(-.2);circle(c,0,8,5,"#9d2f37","#07101b",2);circle(c,8,8,5,"#9d2f37","#07101b",2);line(c,4,5,-1,-16,"#d6dde3",4);line(c,5,5,14,-14,"#d6dde3",4);c.restore()}
