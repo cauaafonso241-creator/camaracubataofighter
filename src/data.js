@@ -19,6 +19,7 @@ export const fighters=[
 ];
 
 export const maps=[
+  {id:"plenario",name:"Plenário Municipal",subtitle:"Câmara Municipal de Cubatão",src:"assets/maps/plenario-camara.svg"},
   {id:"paco",name:"Paço Municipal",subtitle:"Centro de Cubatão",src:"assets/maps/paco-municipal.svg"},
   {id:"deck",name:"Deck da Orla",subtitle:"Orla de Cubatão",src:"assets/maps/deck-orla.svg"},
   {id:"arena",name:"Arena Esportiva",subtitle:"Centro Esportivo",src:"assets/maps/arena-esportiva.svg"}
@@ -26,21 +27,22 @@ export const maps=[
 
 export const projectileTypes=new Set(["ball","water","process","dumbbell","sonic","dogs","cavaco"]);
 
-export const projectileGlyph={
-  ball:"⚽",water:"💧",process:"▤",dumbbell:"▰",sonic:")))",dogs:"🐕",cavaco:"♫",
-  power:"⚡",kick:"✦",kickbox:"✦",scissors:"✂",spin:"◉",hair:"〰"
-};
 
 export const MOVE_TEMPLATES={
   jab:{
     id:"jab",kind:"normal",startup:4,active:2,recovery:8,damage:35,hitstun:10,blockstun:7,hitstop:5,
     hitLevel:"mid",meterGain:5,pushHit:1.0,pushBlock:.65,range:6.4,cancelStart:4,cancelEnd:8,
-    cancelOnHit:["jab","kick","specialA","specialB"],cancelOnBlock:["specialA"],knockdown:false
+    cancelOnHit:["heavy","kick","specialA","specialB"],cancelOnBlock:["specialA"],knockdown:false
   },
   kick:{
-    id:"kick",kind:"normal",startup:8,active:4,recovery:16,damage:62,hitstun:17,blockstun:12,hitstop:7,
-    hitLevel:"mid",meterGain:8,pushHit:1.55,pushBlock:.9,range:10.2,cancelStart:9,cancelEnd:14,
-    cancelOnHit:["specialA","specialB"],cancelOnBlock:[],knockdown:false
+    id:"kick",kind:"normal",startup:6,active:3,recovery:11,damage:48,hitstun:12,blockstun:8,hitstop:5,
+    hitLevel:"mid",meterGain:6,pushHit:1.0,pushBlock:.65,range:8.0,cancelStart:6,cancelEnd:9,
+    cancelOnHit:["heavyKick","specialA","specialB"],cancelOnBlock:["specialA"],knockdown:false
+  },
+  heavyKick:{
+    id:"heavyKick",kind:"normal",startup:9,active:4,recovery:18,damage:104,hitstun:20,blockstun:13,hitstop:9,
+    hitLevel:"mid",meterGain:10,pushHit:2.25,pushBlock:1.05,range:11.4,cancelStart:10,cancelEnd:14,
+    cancelOnHit:["specialA","specialB","super"],cancelOnBlock:[],knockdown:true
   },
   heavy:{
     id:"heavy",kind:"normal",startup:11,active:4,recovery:23,damage:90,hitstun:22,blockstun:15,hitstop:10,
@@ -83,7 +85,7 @@ export function createCharacterMoves(fighter){
     range:ranged?6:15,cancelStart:0,cancelEnd:0,cancelOnHit:[],cancelOnBlock:[],knockdown:true,
     projectile:ranged?{speed:1.38,lifetime:110,width:5.3,height:4.2,durability:2}:null
   };
-  return {jab:{...MOVE_TEMPLATES.jab},kick:{...MOVE_TEMPLATES.kick},heavy:{...MOVE_TEMPLATES.heavy},lowKick:{...MOVE_TEMPLATES.lowKick},airKick:{...MOVE_TEMPLATES.airKick},throw:{...MOVE_TEMPLATES.throw},specialA,specialB,super:superMove};
+  return {jab:{...MOVE_TEMPLATES.jab},kick:{...MOVE_TEMPLATES.kick},heavy:{...MOVE_TEMPLATES.heavy},heavyKick:{...MOVE_TEMPLATES.heavyKick},lowKick:{...MOVE_TEMPLATES.lowKick},airKick:{...MOVE_TEMPLATES.airKick},throw:{...MOVE_TEMPLATES.throw},specialA,specialB,super:superMove};
 }
 
 export const difficulty={
