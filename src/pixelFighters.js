@@ -7,7 +7,7 @@ const lighten=(hex,amt=.25)=>{
   const h=hex.replace("#","");const n=parseInt(h.length===3?h.split("").map(x=>x+x).join(""):h,16);
   return "#"+[n>>16,(n>>8)&255,n&255].map(v=>Math.round(v+(255-v)*amt).toString(16).padStart(2,"0")).join("");
 };
-function poly(c,pts,fill,stroke="#07101b",lw=2){c.fillStyle=fill;c.strokeStyle=stroke;c.lineWidth=lw;c.beginPath();c.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)c.lineTo(pts[i][0],pts[i][1]);c.closePath();c.fill();c.stroke()}
+function poly(c,pts,fill,stroke="#07101b",lw=2){c.fillStyle=fill;c.beginPath();c.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)c.lineTo(pts[i][0],pts[i][1]);c.closePath();c.fill();if(stroke&&lw>0){c.strokeStyle=stroke;c.lineWidth=lw;c.stroke()}}
 function rect(c,x,y,w,h,fill,stroke="#07101b",lw=2){c.fillStyle=fill;c.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h));if(stroke){c.strokeStyle=stroke;c.lineWidth=lw;c.strokeRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}}
 function line(c,x1,y1,x2,y2,col,w=2){c.strokeStyle=col;c.lineWidth=w;c.beginPath();c.moveTo(Math.round(x1),Math.round(y1));c.lineTo(Math.round(x2),Math.round(y2));c.stroke()}
 function circle(c,x,y,r,fill,stroke="#07101b",lw=2){c.fillStyle=fill;c.strokeStyle=stroke;c.lineWidth=lw;c.beginPath();c.arc(Math.round(x),Math.round(y),r,0,Math.PI*2);c.fill();if(stroke)c.stroke()}
