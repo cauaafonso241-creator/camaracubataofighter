@@ -35,13 +35,19 @@ function chamberBackground(ctx,w,h,camX=0){
   for(let x=0;x<w;x+=Math.round(w/10)){rect(ctx,x,wallTop,3,wallBottom-wallTop,"#1b3b62");rect(ctx,x+3,wallTop,8,wallBottom-wallTop,"#315681")}
   rect(ctx,0,0,w,wallTop,"#0b1524");
   for(let x=42;x<w;x+=120){rect(ctx,x,18,34,4,"#ddd9bd");rect(ctx,x+5,22,24,2,"#fffbe7");poly(ctx,[[x+6,24],[x+28,24],[x+35,wallBottom],[x-2,wallBottom]],"#fff7cf10")}
-  // wall boards
+  // ceiling beams and repeated light bays
+  for(let x=0;x<w;x+=120){rect(ctx,x,0,4,wallTop,"#1b2f4c");rect(ctx,x+78,0,3,wallTop,"#1b2f4c")}
+  rect(ctx,0,wallTop-4,w,4,"#324a63");
+  // wall boards / institutional side details
   rect(ctx,35,150,118,100,"#3e291d");rect(ctx,41,156,106,88,"#151923");txt(ctx,"AQUI",94,178,12,"#b9bec7");txt(ctx,"O POVO",94,198,12,"#b9bec7");txt(ctx,"TEM VOZ",94,218,12,"#b9bec7");
-  rect(ctx,w-153,150,118,100,"#3e291d");rect(ctx,w-147,156,106,88,"#151923");txt(ctx,"TRANSPARÊNCIA",w-94,175,10,"#b9bec7");txt(ctx,"TRABALHO",w-94,197,11,"#b9bec7");txt(ctx,"CUBATÃO",w-94,219,10,"#b9bec7");
+  rect(ctx,w-153,150,118,100,"#3e291d");rect(ctx,w-147,156,106,88,"#151923");txt(ctx,"TRANSPARÊNCIA",w-94,175,10,"#b9bec7");txt(ctx,"TRABALHO",w-94,197,11,"#b9bec7");txt(ctx,"CUBATÃO MAIS FORTE",w-94,219,8,"#b9bec7");
+  // stylized crucifix, matching the visual composition without using external assets
+  rect(ctx,w-215,135,6,58,"#4b2a17","#17100b",1);rect(ctx,w-229,150,34,6,"#4b2a17","#17100b",1);
+  circle(ctx,w-212,150,4,"#d7a446","#3b260f",1);line(ctx,w-212,154,w-212,171,"#d7a446",3);line(ctx,w-212,159,w-220,166,"#d7a446",2);line(ctx,w-212,159,w-204,166,"#d7a446",2);
   // flags
   flag(ctx,174,130,122,"#ecece2","#222");flag(ctx,204,130,122,"#197c3e","#f2d84a");flag(ctx,234,130,122,"#e6e8e4","#3384a7");
-  // center logo + text
-  shield(ctx,w/2,138,1.15);txt(ctx,"CÂMARA MUNICIPAL DE",w/2,188,18,"#0d2446");txt(ctx,"CUBATÃO",w/2,216,28,"#0b244b");
+  // center logo + text: dominant, symmetric focal point
+  shield(ctx,w/2,136,1.25);txt(ctx,"CÂMARA MUNICIPAL DE",w/2,186,19,"#0d2446");txt(ctx,"CUBATÃO",w/2,218,31,"#0b244b");
   // chairs back
   for(let x=270;x<w-265;x+=52)chair(ctx,x,300,1);
   // main dais
@@ -53,14 +59,15 @@ function chamberBackground(ctx,w,h,camX=0){
   for(let x=22;x<w*.19;x+=50){chair(ctx,x,317,.85);mic(ctx,x+14,324,.65)}
   for(let x=w*.81;x<w-15;x+=50){chair(ctx,x,317,.85);mic(ctx,x+14,324,.65)}
   plant(ctx,25,318,1.15);plant(ctx,w-25,318,1.15);plant(ctx,145,309,.9);plant(ctx,w-145,309,.9);
-  // floor
+  // floor: large glossy marble plane with converging perspective
   rect(ctx,0,floorY,w,h-floorY,C.marble);
-  for(let y=floorY;y<h;y+=24)line(ctx,0,y,w,y,y%48===0?"#8d8977":"#aaa58f",1);
+  for(let y=floorY;y<h;y+=22)line(ctx,0,y,w,y,(Math.round(y-floorY)/22)%2===0?"#8c8877":"#aaa58f",1);
   const vp=w/2;
-  for(let x=-w;x<w*2;x+=60)line(ctx,vp,floorY,x,h,C.marble2,1);
-  // reflections / highlights
-  ctx.globalAlpha=.12;
-  for(let x=25;x<w;x+=95){poly(ctx,[[x,floorY],[x+18,floorY],[x+44,h],[x-18,h]],"#fff")}
+  for(let x=-w;x<w*2;x+=54)line(ctx,vp,floorY,x,h,C.marble2,1);
+  // broad reflections from ceiling spots
+  ctx.globalAlpha=.13;
+  for(let x=40;x<w;x+=112){poly(ctx,[[x,floorY],[x+16,floorY],[x+52,h],[x-24,h]],"#fff")}
+  ctx.globalAlpha=.06;rect(ctx,0,floorY,w,10,"#fff9de");
   ctx.globalAlpha=1;
   rect(ctx,0,floorY,w,2,"#f5efd5");
   // subtle vignette
