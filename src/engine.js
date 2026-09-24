@@ -4,7 +4,7 @@ import {CanvasRenderer} from "./canvasRenderer.js";
 const FIXED_DT=1/60;
 const WORLD_LEFT=6.5,WORLD_RIGHT=93.5;
 const STATES={
-  IDLE:"IDLE",WALK:"WALK",CROUCH:"CROUCH",AIRBORNE:"AIRBORNE",ATTACK:"ATTACK",SPECIAL:"SPECIAL",SUPER:"SUPER",
+  IDLE:"IDLE",WALK:"WALK",CROUCH:"CROUCH",JUMPSQUAT:"JUMPSQUAT",AIRBORNE:"AIRBORNE",LANDING:"LANDING",ATTACK:"ATTACK",SPECIAL:"SPECIAL",SUPER:"SUPER",
   HITSTUN:"HITSTUN",BLOCKSTUN:"BLOCKSTUN",KNOCKDOWN:"KNOCKDOWN",WAKEUP:"WAKEUP",THROW:"THROW",THROWN:"THROWN",
   VICTORY:"VICTORY",DEFEAT:"DEFEAT"
 };
@@ -23,11 +23,11 @@ class Fighter{
     this.x=x;this.y=0;this.vx=0;this.vy=0;this.onGround=true;this.facing=this.side==="p1"?1:-1;
     this.hp=1000;this.redHp=1000;this.meter=0;this.state=STATES.IDLE;this.stateFrame=0;this.move=null;this.moveFrame=0;
     this.hitstun=0;this.blockstun=0;this.knockdown=0;this.wakeup=0;this.invuln=0;this.blocking=false;this.blockType="high";
-    this.crouching=false;this.dashFrames=0;this.dashDir=0;this.buffer=[];this.connected=null;this.pendingKnockdown=false;
+    this.crouching=false;this.jumpSquat=0;this.landingLag=0;this.dashFrames=0;this.dashTotal=0;this.dashDir=0;this.dashKind="";this.buffer=[];this.connected=null;this.pendingKnockdown=false;
     this.comboCount=0;this.comboDamage=0;this.lastHitFrame=-999;this.lastDashFrame=-999;this.justLanded=0;
   }
   neutral(){return [STATES.IDLE,STATES.WALK,STATES.CROUCH].includes(this.state)}
-  locked(){return [STATES.HITSTUN,STATES.BLOCKSTUN,STATES.KNOCKDOWN,STATES.WAKEUP,STATES.THROWN,STATES.VICTORY,STATES.DEFEAT].includes(this.state)}
+  locked(){return [STATES.JUMPSQUAT,STATES.LANDING,STATES.HITSTUN,STATES.BLOCKSTUN,STATES.KNOCKDOWN,STATES.WAKEUP,STATES.THROWN,STATES.VICTORY,STATES.DEFEAT].includes(this.state)}
 }
 
 class AIController{
@@ -50,19 +50,19 @@ class AIController{
     if(opponent.move&&engine.phaseOf(opponent)==="RECOVERY"&&d<13&&Math.random()<.6){intent.action="kick";this.intent=intent;return intent}
     if(d>24){
       intent.move=toward;
-      if(actor.meter>=35&&Math.random()<cfg.specialChance)intent.action=Math.random()<.65?"specialA":"specialB";
+      if(Math.random()<cfg.specialChance)intent.action=Math.random()<.65?"specialA":"specialB";
       else if(Math.random()<.15)intent.action="dashForward";
     }else if(d>11){
       if(Math.random()<.45)intent.move=toward;
       if(Math.random()<cfg.attackChance*.55)intent.action=Math.random()<.55?"kick":"heavy";
-      else if(actor.meter>=35&&Math.random()<cfg.specialChance)intent.action="specialA";
+      else if(Math.random()<cfg.specialChance)intent.action="specialA";
     }else{
       const r=Math.random();
       if(r<cfg.blockChance*.45)intent.guard=true;
       else if(r<cfg.attackChance*.42)intent.action="jab";
       else if(r<cfg.attackChance*.75)intent.action="kick";
       else if(r<cfg.attackChance)intent.action="heavy";
-      else if(actor.meter>=35&&Math.random()<cfg.specialChance)intent.action="specialB";
+      else if(Math.random()<cfg.specialChance)intent.action="specialB";
     }
     if(actor.meter>=100&&Math.random()<cfg.specialChance*.5)intent.action="super";
     this.intent=intent;return intent;
@@ -156,28 +156,28 @@ export class GameEngine{
   playDummy(){if(this.recorded.length){this.replaying=true;this.recording=false;this.replayIndex=0}}
   bufferInput(a,inp,side,fromReplay=false){
     if(!inp)return;
-    const push=(type,ttl)=>{if(!a.buffer.some(q=>q.type===type&&q.expires>=this.frame))a.buffer.push({type,expires:this.frame+ttl})};
+    const push=(type,ttl=9)=>{if(!a.buffer.some(q=>q.type===type&&q.expires>=this.frame))a.buffer.push({type,expires:this.frame+ttl})};
     const lp=inp.held.has("lightPunch"),lk=inp.held.has("lightKick");
     const throwInput=lp&&lk&&(inp.pressed.has("lightPunch")||inp.pressed.has("lightKick"));
-    if(inp.pressed.has("super"))push("super",8);
-    else if(throwInput)push("throw",5);
+    if(inp.pressed.has("super"))push("super",10);
+    else if(throwInput)push("throw",7);
     else{
       const punchPressed=inp.pressed.has("lightPunch")||inp.pressed.has("heavyPunch");
       const kickPressed=inp.pressed.has("lightKick")||inp.pressed.has("heavyKick");
-      if((punchPressed||kickPressed)&&(this.input.motion(side,"qcf",16)||this.input.motion(side,"qcb",16))){
-        push(kickPressed?"specialB":"specialA",8);
+      if((punchPressed||kickPressed)&&(this.input.motion(side,"qcf",18)||this.input.motion(side,"qcb",18))){
+        push(kickPressed?"specialB":"specialA",10);
       }else{
-        if(inp.pressed.has("lightPunch"))push("jab",5);
-        if(inp.pressed.has("heavyPunch"))push("heavy",5);
-        if(inp.pressed.has("lightKick"))push(!a.onGround?"airKick":inp.held.has("down")?"lowKick":"kick",5);
-        if(inp.pressed.has("heavyKick"))push(!a.onGround?"airKick":"heavyKick",5);
-        if(inp.pressed.has("special")&&this.settings.get("simpleSpecial"))push(inp.held.has("down")?"specialB":"specialA",8);
+        if(inp.pressed.has("lightPunch"))push("jab",8);
+        if(inp.pressed.has("heavyPunch"))push("heavy",8);
+        if(inp.pressed.has("lightKick"))push(!a.onGround?"airKick":inp.held.has("down")?"lowKick":"kick",8);
+        if(inp.pressed.has("heavyKick"))push(!a.onGround?"airKick":"heavyKick",8);
+        if(inp.pressed.has("special")&&this.settings.get("simpleSpecial"))push(inp.held.has("down")?"specialB":"specialA",10);
       }
     }
-    if(inp.pressed.has("up")&&a.onGround)push("jump",5);
+    if(inp.pressed.has("up")&&a.onGround)push("jump",8);
     if((inp.pressed.has("left")||inp.pressed.has("right"))&&this.frame-a.lastDashFrame>10){
-      if(this.input.doubleTap(side,"F",12)){push("dashForward",4);a.lastDashFrame=this.frame}
-      else if(this.input.doubleTap(side,"B",12)){push("dashBack",4);a.lastDashFrame=this.frame}
+      if(this.input.doubleTap(side,"F",13)){push("dashForward",7);a.lastDashFrame=this.frame}
+      else if(this.input.doubleTap(side,"B",13)){push("dashBack",7);a.lastDashFrame=this.frame}
     }
   }
   consumeBuffer(a,side,duringHitstop=false){
@@ -190,10 +190,19 @@ export class GameEngine{
   tryAction(a,type,side){
     if(a.locked())return false;
     if(type==="jump"){
-      if(a.onGround&&a.neutral()){a.state=STATES.AIRBORNE;a.onGround=false;a.vy=1.52;a.stateFrame=0;this.audio.play("jump");return true}return false;
+      if(a.onGround&&a.neutral()){
+        a.state=STATES.JUMPSQUAT;a.jumpSquat=3;a.stateFrame=0;a.vx*=.78;return true;
+      }
+      return false;
     }
     if(type==="dashForward"||type==="dashBack"){
-      if(a.onGround&&a.neutral()){a.dashFrames=type==="dashForward"?8:7;a.dashDir=(type==="dashForward"?1:-1)*a.facing;a.state=STATES.WALK;return true}return false;
+      if(a.onGround&&a.neutral()){
+        a.dashKind=type;a.dashTotal=type==="dashForward"?11:10;a.dashFrames=a.dashTotal;
+        a.dashDir=(type==="dashForward"?1:-1)*a.facing;a.state=STATES.WALK;a.vx=0;
+        if(type==="dashBack")a.invuln=Math.max(a.invuln,4);
+        this.renderer.spawnDust(a);return true;
+      }
+      return false;
     }
     const move=a.moves[type];if(!move)return false;
     if((move.meterCost||0)>a.meter)return false;
@@ -244,37 +253,64 @@ export class GameEngine{
   }
   updateFighter(a,side){
     a.stateFrame++;if(a.invuln>0)a.invuln--;
-    if(a.state===STATES.HITSTUN){if(--a.hitstun<=0){if(a.pendingKnockdown){a.state=STATES.KNOCKDOWN;a.knockdown=42;a.pendingKnockdown=false}else a.state=STATES.IDLE}return}
+    if(a.state===STATES.JUMPSQUAT){
+      if(--a.jumpSquat<=0){
+        const inp=this.lastInput[side],dir=inp?.held.has("left")?-1:inp?.held.has("right")?1:0;
+        a.state=STATES.AIRBORNE;a.onGround=false;a.vy=1.48;a.vx=dir*.24+a.vx*.45;a.stateFrame=0;this.audio.play("jump");
+      }
+      return;
+    }
+    if(a.state===STATES.LANDING){if(--a.landingLag<=0)a.state=STATES.IDLE;return}
+    if(a.state===STATES.HITSTUN){
+      this.updateAirPhysics(a,side,false);
+      if(--a.hitstun<=0){
+        if(a.pendingKnockdown){if(a.onGround){a.state=STATES.KNOCKDOWN;a.knockdown=42;a.pendingKnockdown=false}else a.hitstun=1}
+        else a.state=a.onGround?STATES.IDLE:STATES.AIRBORNE;
+      }
+      return;
+    }
     if(a.state===STATES.BLOCKSTUN){if(--a.blockstun<=0)a.state=STATES.IDLE;return}
     if(a.state===STATES.KNOCKDOWN){if(--a.knockdown<=0){a.state=STATES.WAKEUP;a.wakeup=14;a.invuln=8}return}
     if(a.state===STATES.WAKEUP){if(--a.wakeup<=0)a.state=STATES.IDLE;return}
     if(a.state===STATES.THROWN){if(--a.hitstun<=0){a.state=STATES.KNOCKDOWN;a.knockdown=48;a.pendingKnockdown=false}return}
     if(a.move){this.updateMove(a,side)}
     else this.updateMovement(a,side);
-    if(!a.onGround){
-      a.y+=a.vy;a.vy-=.085;
-      const inp=this.lastInput[side];
-      if(inp&&!a.locked()){if(inp.held.has("left"))a.x-=.12;if(inp.held.has("right"))a.x+=.12}
-      if(a.y<=0){a.y=0;a.vy=0;a.onGround=true;a.justLanded=8;this.renderer.spawnDust(a);if(a.state===STATES.AIRBORNE)a.state=STATES.IDLE}
-    }
+    this.updateAirPhysics(a,side,true);
     if(a.justLanded>0)a.justLanded--;
     a.x=clamp(a.x,WORLD_LEFT,WORLD_RIGHT);
   }
+  updateAirPhysics(a,side,allowControl=true){
+    if(a.onGround)return;
+    const inp=this.lastInput[side];
+    if(allowControl&&inp&&!a.locked()){
+      const axis=inp.held.has("left")?-1:inp.held.has("right")?1:0;
+      a.vx+=clamp(axis*.25-a.vx,-.022,.022);
+    }
+    a.x+=a.vx;a.y+=a.vy;a.vy-=.082;
+    if(a.y<=0){
+      a.y=0;a.vy=0;a.vx*=.55;a.onGround=true;a.justLanded=8;this.renderer.spawnDust(a);
+      if(a.pendingKnockdown){a.state=STATES.KNOCKDOWN;a.knockdown=42;a.pendingKnockdown=false}
+      else if(a.state===STATES.AIRBORNE){a.state=STATES.LANDING;a.landingLag=3}
+    }
+  }
   updateMovement(a,side){
     if(a.dashFrames>0){
-      a.vx=a.dashDir*1.18;a.x+=a.vx;a.dashFrames--;
+      const elapsed=a.dashTotal-a.dashFrames,forward=a.dashKind==="dashForward";
+      const curve=elapsed<2?.72:elapsed<7?1:Math.max(.35,a.dashFrames/5);
+      a.vx=a.dashDir*(forward?1.04:.92)*curve;a.x+=a.vx;a.dashFrames--;
       if(a.dashFrames%3===0)this.renderer.spawnDust(a);
-      if(a.dashFrames===0){a.vx*=.45;a.state=STATES.IDLE}
+      if(a.dashFrames===0){a.vx*=.32;a.dashKind="";a.state=STATES.IDLE}
       return;
     }
     if(!a.onGround)return;
     const inp=this.lastInput[side];if(!inp||a.blocking||a.crouching){a.vx*=.72;return}
     let dx=0;if(inp.held.has("left"))dx=-1;if(inp.held.has("right"))dx=1;
     if(dx){
-      const max=(dx===a.facing)?0.36:0.28,target=dx*max;
-      a.vx+=clamp(target-a.vx,-.085,.085);a.x+=a.vx;a.state=STATES.WALK;
+      const agility=(a.data.stats?.[1]||80),bonus=(agility-80)*.0015;
+      const max=(dx===a.facing)?0.335+bonus:0.265+bonus*.65,target=dx*max;
+      a.vx+=clamp(target-a.vx,-.065,.065);a.x+=a.vx;a.state=STATES.WALK;
     }else{
-      a.vx*=.68;if(Math.abs(a.vx)<.02)a.vx=0;a.x+=a.vx;if(a.state===STATES.WALK)a.state=STATES.IDLE;
+      a.vx*=.74;if(Math.abs(a.vx)<.015)a.vx=0;a.x+=a.vx;if(a.state===STATES.WALK&&Math.abs(a.vx)<.05)a.state=STATES.IDLE;
     }
   }
   updateMove(a,side){
@@ -353,11 +389,14 @@ export class GameEngine{
     const continuing=this.comboOwner===att&&def.state===STATES.HITSTUN&&this.comboTimer>0;
     if(!continuing){att.comboCount=0;att.comboDamage=0}
     att.comboCount++;const scale=SCALE[Math.min(att.comboCount-1,SCALE.length-1)]||.55;
-    const damage=Math.round(m.damage*scale);def.hp=clamp(def.hp-damage,0,1000);att.comboDamage+=damage;att.lastHitFrame=this.frame;
+    const counterMul=wasAttacking?1.1:1;
+    const damage=Math.round(m.damage*scale*counterMul);def.hp=clamp(def.hp-damage,0,1000);att.comboDamage+=damage;att.lastHitFrame=this.frame;
     this.comboOwner=att;this.comboTimer=Math.max(m.hitstun+14,28);
     att.meter=clamp(att.meter+(m.meterGain||4),0,100);def.meter=clamp(def.meter+Math.max(2,Math.floor(damage/40)),0,100);
-    def.state=STATES.HITSTUN;def.hitstun=Math.max(1,Math.round(m.hitstun*Math.max(.65,1-(att.comboCount-1)*.04)));
-    def.pendingKnockdown=!!m.knockdown;att.connected="hit";if(att.move)att.move.connected="hit";
+    def.state=STATES.HITSTUN;def.hitstun=Math.max(1,Math.round((m.hitstun+(wasAttacking?3:0))*Math.max(.65,1-(att.comboCount-1)*.04)));
+    def.pendingKnockdown=!!m.knockdown;
+    if((m.knockbackY||0)>0){def.onGround=false;def.vy=m.knockbackY;def.vx=att.facing*Math.max(.18,(m.pushHit||1)*.08)}
+    att.connected="hit";if(att.move)att.move.connected="hit";
     this.pushActors(att,def,m.pushHit||1.2);this.hitstop=m.hitstop;this.spark(def,m.kind.includes("super")?"super":m.damage>=80?"heavy":"light");
     this.audio.play(m.damage>=80?"hitHeavy":"hitLight");
     if(wasAttacking)this.counterBanner={side:att.side,frames:28};
