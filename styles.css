@@ -10,7 +10,8 @@ button,select,input{font:inherit}
 button{color:inherit;cursor:pointer}
 button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
 .screen{display:none;position:relative;min-height:100vh;min-height:100dvh;background:radial-gradient(circle at 50% 0,#153663 0,#061227 48%,#020712 100%)}
-.screen.active{display:block}
+.screen.active{display:block;animation:sceneIn .18s steps(4,end)}
+@keyframes sceneIn{0%{opacity:0;filter:brightness(1.65);transform:scale(1.008)}100%{opacity:1;filter:none;transform:none}}
 .hidden{display:none!important}
 .scanlines{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 3px,#fff 4px);opacity:.025}
 .primary,.secondary{border:0;border-radius:5px;padding:14px 22px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;transition:.12s transform,.12s filter,.12s box-shadow}
