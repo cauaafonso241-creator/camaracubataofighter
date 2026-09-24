@@ -2,7 +2,7 @@ import {fighters,maps,createCharacterMoves,difficulty} from "./data.js";
 import {CanvasRenderer} from "./canvasRenderer.js";
 
 const FIXED_DT=1/60;
-const WORLD_LEFT=6.5,WORLD_RIGHT=93.5,Y_SCALE=1.6;
+const WORLD_LEFT=6.5,WORLD_RIGHT=93.5;
 const STATES={
   IDLE:"IDLE",WALK:"WALK",CROUCH:"CROUCH",AIRBORNE:"AIRBORNE",ATTACK:"ATTACK",SPECIAL:"SPECIAL",SUPER:"SUPER",
   HITSTUN:"HITSTUN",BLOCKSTUN:"BLOCKSTUN",KNOCKDOWN:"KNOCKDOWN",WAKEUP:"WAKEUP",THROW:"THROW",THROWN:"THROWN",
@@ -20,7 +20,7 @@ class Fighter{
     this.wins=0;this.resetRound(x);
   }
   resetRound(x){
-    this.x=x;this.y=0;this.vy=0;this.onGround=true;this.facing=this.side==="p1"?1:-1;
+    this.x=x;this.y=0;this.vx=0;this.vy=0;this.onGround=true;this.facing=this.side==="p1"?1:-1;
     this.hp=1000;this.redHp=1000;this.meter=0;this.state=STATES.IDLE;this.stateFrame=0;this.move=null;this.moveFrame=0;
     this.hitstun=0;this.blockstun=0;this.knockdown=0;this.wakeup=0;this.invuln=0;this.blocking=false;this.blockType="high";
     this.crouching=false;this.dashFrames=0;this.dashDir=0;this.buffer=[];this.connected=null;this.pendingKnockdown=false;
@@ -77,17 +77,18 @@ export class GameEngine{
     this.ai=null;this.round=1;this.roundFrames=75*60;this.roundOver=false;this.matchOver=false;this.freezeRoundIntro=0;
     this.comboOwner=null;this.comboTimer=0;this.roundEndFrames=0;this.roundWinner=null;this.roundReason="";this.recording=false;this.recorded=[];this.replaying=false;this.replayIndex=0;
     this.lastInput={p1:null,p2:null};
+    this.announcement={text:"",frames:0};this.comboBanner={text:"",side:"p1",frames:0};this.counterBanner={side:"p1",frames:0};
   }
   start(config){
     this.stop();this.config={...config};this.mode=config.mode||"quick";this.paused=false;this.frame=0;this.round=1;this.roundOver=false;this.matchOver=false;
-    this.p1=new Fighter(config.p1Index,20,"p1");this.p2=new Fighter(config.p2Index,80,"p2");
+    this.p1=new Fighter(config.p1Index,32,"p1");this.p2=new Fighter(config.p2Index,68,"p2");
     this.input.setP2Enabled(config.opponentType==="p2"||this.mode==="training");
     this.ai=new AIController(config.difficulty||this.settings.get("difficulty")||"normal");
-    this.projectiles=[];this.setupArena();this.audio.startMusic?.(maps[config.mapIndex]?.id);this.setupFighterDOM("p1",this.p1);this.setupFighterDOM("p2",this.p2);this.resetRound(true);
+    this.projectiles=[];this.renderer.init(this.config);this.audio.startMusic?.(maps[config.mapIndex]?.id);this.resetRound(true);
     this.running=true;this.lastTime=performance.now();this.acc=0;this.loop(this.lastTime);
   }
   stop(){this.running=false;if(this.raf)cancelAnimationFrame(this.raf);this.raf=0;this.projectiles=[];this.audio.stopMusic?.()}
-  pause(v=true){this.paused=v;this.input.clear();if(!v)this.lastTime=performance.now()}
+  pause(v=true){this.paused=v;this.input.clear();this.audio.setGameplayPaused?.(v);if(!v)this.lastTime=performance.now()}
   loop=(now)=>{
     if(!this.running)return;
     const delta=Math.min(.1,Math.max(0,(now-this.lastTime)/1000));this.lastTime=now;
@@ -98,52 +99,12 @@ export class GameEngine{
     }
     this.renderer.render();this.raf=requestAnimationFrame(this.loop);
   };
-  setupArena(){
-    const map=maps[this.config.mapIndex];
-    document.querySelector("#stageBg").src=map.src;document.querySelector("#stageName").textContent=map.name.toUpperCase();
-    document.querySelector("#p1Name").textContent=this.p1.data.name;document.querySelector("#p2Name").textContent=this.p2.data.name;
-    document.querySelector("#p1HudImg").src=this.p1.data.portrait;document.querySelector("#p2HudImg").src=this.p2.data.portrait;
-    document.querySelector("#p2HudSide").textContent=this.config.opponentType==="p2"?"P2":"CPU";
-  }
-  setupFighterDOM(id,a){
-    const el=document.querySelector("#"+id);el.style.setProperty("--fighter-color",a.data.color);
-    el.querySelector(".sprite").innerHTML=this.fighterMarkup(a.data);el.dataset.special=a.data.type;
-  }
-  propMarkup(f){
-    if(f.type==="cavaco")return `<div class="fighter-prop prop-cavaco"><span class="prop-neck"></span><span class="prop-body"></span><span class="prop-strings"></span></div>`;
-    if(f.type==="scissors")return `<div class="fighter-prop prop-scissors"><span class="scissor-ring r1"></span><span class="scissor-ring r2"></span><span class="scissor-blade b1"></span><span class="scissor-blade b2"></span></div>`;
-    if(f.type==="process")return `<div class="fighter-prop prop-process"><span>PROC.</span><i></i><i></i><i></i></div>`;
-    if(f.type==="water")return `<div class="fighter-prop prop-water"><span class="gallon-handle"></span><span class="gallon-cap"></span></div>`;
-    if(f.type==="dumbbell")return `<div class="fighter-prop prop-dumbbell"><span class="db-left"></span><span class="db-bar"></span><span class="db-right"></span></div>`;
-    if(f.type==="ball")return `<div class="fighter-prop prop-ball"><i></i></div>`;return "";
-  }
-  fighterMarkup(f){
-    return `<div class="fighter-rig">
-      <div class="leg leg-back"><span class="thigh"></span><span class="calf"></span><span class="shoe"></span></div>
-      <div class="leg leg-front"><span class="thigh"></span><span class="calf"></span><span class="shoe"></span></div>
-      <div class="torso"><span class="jacket-lapel lapel-left"></span><span class="jacket-lapel lapel-right"></span><span class="shirt"></span><span class="tie"></span></div>
-      <div class="arm arm-back"><span class="upper"></span><span class="forearm"></span><span class="hand"></span></div>
-      <div class="head drawn-head hair-${f.look?.hairStyle||"short"} beard-${f.look?.beardStyle||"none"} ${f.look?.glasses?"has-glasses":""}" style="--skin:${f.look?.skin||"#b97a58"};--hair:${f.look?.hair||"#222"};--beard:${f.look?.beard||f.look?.hair||"#222"}">
-        <span class="ear ear-left"></span><span class="ear ear-right"></span>
-        <span class="hair-shape"></span>
-        <span class="brow brow-left"></span><span class="brow brow-right"></span>
-        <span class="eye eye-left"></span><span class="eye eye-right"></span>
-        <span class="nose"></span><span class="mouth"></span><span class="beard-shape"></span>
-        <span class="glasses-frame glasses-left"></span><span class="glasses-frame glasses-right"></span><span class="glasses-bridge"></span>
-      </div>
-      <div class="arm arm-front"><span class="upper"></span><span class="forearm"></span><span class="hand"></span></div>
-      ${this.propMarkup(f)}</div>`;
-  }
   resetRound(first=false){
-    const w1=this.p1.wins,w2=this.p2.wins;this.p1.resetRound(20);this.p2.resetRound(80);this.p1.wins=w1;this.p2.wins=w2;
-    this.projectiles=[];this.roundFrames=(this.config.time||75)*60;this.roundOver=false;this.roundEndFrames=0;this.roundWinner=null;this.roundReason="";this.hitstop=0;this.freezeRoundIntro=62;this.comboOwner=null;this.comboTimer=0;
-    document.querySelector("#roundLabel").textContent="ROUND "+this.round;
-    this.announce("ROUND "+this.round,550);setTimeout(()=>{if(this.running&&!this.paused)this.announce("FIGHT!",450)},580);
+    const w1=this.p1.wins,w2=this.p2.wins;this.p1.resetRound(32);this.p2.resetRound(68);this.p1.wins=w1;this.p2.wins=w2;
+    this.projectiles=[];this.roundFrames=(this.config.time||75)*60;this.roundOver=false;this.roundEndFrames=0;this.roundWinner=null;this.roundReason="";this.hitstop=0;this.freezeRoundIntro=105;this.comboOwner=null;this.comboTimer=0;
+    this.announcement={text:"ROUND "+this.round,frames:48};this.comboBanner={text:"",side:"p1",frames:0};this.counterBanner={side:"p1",frames:0};
   }
-  announce(text,ms=500){
-    const el=document.querySelector("#announcement");el.textContent=text;
-    setTimeout(()=>{if(el.textContent===text)el.textContent=""},ms);
-  }
+  announce(text,ms=500){this.announcement={text,frames:Math.max(1,Math.round(ms/16.67))}}
   phaseOf(a){
     if(!a.move)return "";
     const d=a.move,f=a.moveFrame;
@@ -152,7 +113,10 @@ export class GameEngine{
     return "RECOVERY";
   }
   step(){
-    this.frame++;
+    this.frame++;this.renderer.step();
+    if(this.announcement.frames>0)this.announcement.frames--;
+    if(this.comboBanner.frames>0)this.comboBanner.frames--;
+    if(this.counterBanner.frames>0)this.counterBanner.frames--;
     const facing={p1:this.p1.x<=this.p2.x?1:-1,p2:this.p2.x<=this.p1.x?1:-1};this.p1.facing=facing.p1;this.p2.facing=facing.p2;
     const inp=this.input.step(facing);this.lastInput=inp;
     this.bufferInput(this.p1,inp.p1,"p1");
@@ -161,7 +125,7 @@ export class GameEngine{
     if(this.recording&&this.mode==="training"){
       this.recorded.push(this.encodeInput(inp.p2));if(this.recorded.length>=600)this.recording=false;
     }
-    if(this.freezeRoundIntro>0){this.freezeRoundIntro--;return}
+    if(this.freezeRoundIntro>0){this.freezeRoundIntro--;if(this.freezeRoundIntro===42)this.announcement={text:"FIGHT!",frames:32};return}
     if(this.hitstop>0){this.hitstop--;this.processBuffersOnly();return}
     if(this.matchOver)return;
     if(this.roundOver){
@@ -287,20 +251,27 @@ export class GameEngine{
       a.y+=a.vy;a.vy-=.085;
       const inp=this.lastInput[side];
       if(inp&&!a.locked()){if(inp.held.has("left"))a.x-=.12;if(inp.held.has("right"))a.x+=.12}
-      if(a.y<=0){a.y=0;a.vy=0;a.onGround=true;a.justLanded=8;if(a.state===STATES.AIRBORNE)a.state=STATES.IDLE}
+      if(a.y<=0){a.y=0;a.vy=0;a.onGround=true;a.justLanded=8;this.renderer.spawnDust(a);if(a.state===STATES.AIRBORNE)a.state=STATES.IDLE}
     }
     if(a.justLanded>0)a.justLanded--;
     a.x=clamp(a.x,WORLD_LEFT,WORLD_RIGHT);
   }
   updateMovement(a,side){
-    if(a.dashFrames>0){a.x+=a.dashDir*1.15;a.dashFrames--;if(a.dashFrames===0)a.state=STATES.IDLE;return}
+    if(a.dashFrames>0){
+      a.vx=a.dashDir*1.18;a.x+=a.vx;a.dashFrames--;
+      if(a.dashFrames%3===0)this.renderer.spawnDust(a);
+      if(a.dashFrames===0){a.vx*=.45;a.state=STATES.IDLE}
+      return;
+    }
     if(!a.onGround)return;
-    const inp=this.lastInput[side];if(!inp||a.blocking||a.crouching)return;
-    let dx=0;
-    if(inp.held.has("left"))dx=-1;if(inp.held.has("right"))dx=1;
+    const inp=this.lastInput[side];if(!inp||a.blocking||a.crouching){a.vx*=.72;return}
+    let dx=0;if(inp.held.has("left"))dx=-1;if(inp.held.has("right"))dx=1;
     if(dx){
-      const spd=(dx===a.facing)?0.34:0.27;a.x+=dx*spd;a.state=STATES.WALK;
-    }else if(a.state===STATES.WALK)a.state=STATES.IDLE;
+      const max=(dx===a.facing)?0.36:0.28,target=dx*max;
+      a.vx+=clamp(target-a.vx,-.085,.085);a.x+=a.vx;a.state=STATES.WALK;
+    }else{
+      a.vx*=.68;if(Math.abs(a.vx)<.02)a.vx=0;a.x+=a.vx;if(a.state===STATES.WALK)a.state=STATES.IDLE;
+    }
   }
   updateMove(a,side){
     const m=a.move;a.moveFrame++;
@@ -315,15 +286,34 @@ export class GameEngine{
     }
     if(a.moveFrame>=m.startup+m.active+m.recovery)this.endMove(a);
   }
-  hurtbox(a){
-    const h=a.state===STATES.CROUCH||a.crouching?12:18,w=5.6;
-    return {x:a.x-w/2,y:a.y,w,h};
+  hurtboxes(a){
+    if(a.state===STATES.KNOCKDOWN||a.state===STATES.DEFEAT)return [{x:a.x-5,y:a.y,w:10,h:3.5}];
+    const crouch=a.state===STATES.CROUCH||a.crouching;
+    if(crouch)return [
+      {x:a.x-2.8,y:a.y+7.5,w:5.6,h:4.5},
+      {x:a.x-3.1,y:a.y+3.2,w:6.2,h:4.8},
+      {x:a.x-3.3,y:a.y,w:6.6,h:3.8}
+    ];
+    return [
+      {x:a.x-2.4,y:a.y+13.2,w:4.8,h:5.2},
+      {x:a.x-3.0,y:a.y+6.2,w:6.0,h:7.2},
+      {x:a.x-3.1,y:a.y,w:6.2,h:6.6}
+    ];
   }
-  pushbox(a){return {x:a.x-2.45,y:a.y,w:4.9,h:a.crouching?8.5:10.5}}
+  hurtbox(a){
+    const boxes=this.hurtboxes(a);const x=Math.min(...boxes.map(b=>b.x)),y=Math.min(...boxes.map(b=>b.y));
+    const r=Math.max(...boxes.map(b=>b.x+b.w)),t=Math.max(...boxes.map(b=>b.y+b.h));return {x,y,w:r-x,h:t-y};
+  }
+  pushbox(a){return {x:a.x-2.55,y:a.y,w:5.1,h:a.crouching?7.8:10.8}}
   hitbox(a,m){
-    const y=m.hitLevel==="low"?a.y+1:m.id==="airKick"?a.y+7:a.y+(m.kind.includes("super")?4.5:6);
-    const h=m.hitLevel==="low"?4:m.kind.includes("super")?10:6.5,w=m.range;
-    return {x:a.facing===1?a.x+2.2:a.x-2.2-w,y,w,h};
+    let w=m.range,h=5.5,y=a.y+7;
+    if(m.id==="jab"){w=Math.min(w,6.5);h=4.4;y=a.y+8.2}
+    if(m.id==="heavy"||m.id==="heavyPunch"){w=Math.max(w,8.8);h=5.8;y=a.y+7.5}
+    if(m.id==="kick"){h=4.2;y=a.y+4.4}
+    if(m.id==="heavyKick"||m.id==="airKick"){h=5.0;y=a.y+8.7}
+    if(m.id==="lowKick"){h=3.5;y=a.y+1.2}
+    if(m.kind.includes("super")){h=9.5;y=a.y+5.5}
+    return {x:a.facing===1?a.x+2.1:a.x-2.1-w,y,w,h};
   }
   checkMoveHit(att,def,m){
     if(def.invuln>0)return false;
@@ -335,8 +325,7 @@ export class GameEngine{
       }
       this.applyThrow(att,def,m);return true;
     }
-    const hb=this.hitbox(att,m),hurt=this.hurtbox(def);
-    if(overlap(hb,hurt)){this.applyHit(att,def,m);return true}
+    const hb=this.hitbox(att,m),hurts=this.hurtboxes(def);if(hurts.some(h=>overlap(hb,h))){this.applyHit(att,def,m);return true}
     return false;
   }
   canBlock(def,m){
@@ -367,8 +356,8 @@ export class GameEngine{
     def.pendingKnockdown=!!m.knockdown;att.connected="hit";if(att.move)att.move.connected="hit";
     this.pushActors(att,def,m.pushHit||1.2);this.hitstop=m.hitstop;this.spark(def,m.kind.includes("super")?"super":m.damage>=80?"heavy":"light");
     this.audio.play(m.damage>=80?"hitHeavy":"hitLight");
-    if(wasAttacking){document.querySelector("#counterText").textContent="COUNTER!";setTimeout(()=>document.querySelector("#counterText").textContent="",420)}
-    if(att.comboCount>=2){const el=document.querySelector("#comboText");el.style.left=att.side==="p1"?"6%":"auto";el.style.right=att.side==="p2"?"6%":"auto";el.textContent=att.comboCount+" HIT COMBO!";setTimeout(()=>{if(el.textContent.includes("HIT"))el.textContent=""},520)}
+    if(wasAttacking)this.counterBanner={side:att.side,frames:28};
+    if(att.comboCount>=2)this.comboBanner={text:att.comboCount+" HIT COMBO!",side:att.side,frames:34};
     if(def.hp<=0){if(this.mode==="training"){def.hp=1000;def.redHp=1000}else this.beginKO(att,def)}
   }
   applyThrow(att,def,m){
@@ -389,10 +378,8 @@ export class GameEngine{
     else{this.p1.x=clamp(this.p1.x+half,WORLD_LEFT,WORLD_RIGHT);this.p2.x=clamp(this.p2.x-half,WORLD_LEFT,WORLD_RIGHT)}
   }
   spawnProjectile(owner,m){
-    const css=owner.data.type+(m.id==="super"?" super":"");
-    const glyph=m.id==="super"?"✦"+(projectileGlyph[owner.data.type]||"✦"):projectileGlyph[owner.data.type]||"✦";
-    this.projectiles.push({id:++this.projectileId,owner,x:owner.x+owner.facing*4.2,y:owner.y+8,vx:owner.facing*m.projectile.speed,
-      w:m.projectile.width,h:m.projectile.height,lifetime:m.projectile.lifetime,durability:m.projectile.durability,glyph,css,
+    this.projectiles.push({id:++this.projectileId,owner,x:owner.x+owner.facing*4.2,y:owner.y+8,vx:owner.facing*m.projectile.speed,vy:0,
+      w:m.projectile.width,h:m.projectile.height,lifetime:m.projectile.lifetime,durability:m.projectile.durability,
       move:{...m,kind:m.id==="super"?"superProjectile":"projectile"}});
     this.audio.play(m.id==="super"?"super":"special");
   }
@@ -415,24 +402,14 @@ export class GameEngine{
     for(const p of this.projectiles){
       const def=p.owner===this.p1?this.p2:this.p1;if(def.invuln>0)continue;
       const r={x:p.x-p.w/2,y:p.y-p.h/2,w:p.w,h:p.h};
-      if(overlap(r,this.hurtbox(def))){this.applyHit(p.owner,def,p.move,true);p.lifetime=0}
+      if(this.hurtboxes(def).some(h=>overlap(r,h))){this.applyHit(p.owner,def,p.move,true);p.lifetime=0}
     }
     this.projectiles=this.projectiles.filter(p=>p.lifetime>0);
   }
-  spark(def,type){
-    const layer=document.querySelector("#vfxLayer"),el=document.createElement("i");el.className=type==="block"?"block-spark":type==="super"?"impact-spark clash-spark":"impact-spark";
-    el.style.left=def.x+"%";el.style.bottom=`calc(var(--stage-floor) + ${((def.y+9)*Y_SCALE).toFixed(2)}%)`;layer.appendChild(el);setTimeout(()=>el.remove(),230);
-    if(type!=="light")this.shake(type==="super"?"heavy":"light");
-  }
-  clashSpark(x,y){const layer=document.querySelector("#vfxLayer"),el=document.createElement("i");el.className="clash-spark";el.style.left=x+"%";el.style.bottom=`calc(var(--stage-floor) + ${(y*Y_SCALE).toFixed(2)}%)`;layer.appendChild(el);setTimeout(()=>el.remove(),230);this.audio.play("block")}
-  shake(level){
-    if(this.settings.get("reduceShake"))return;
-    const s=document.querySelector("#stage"),cls=level==="heavy"?"shake-heavy":"shake";s.classList.remove("shake","shake-heavy");void s.offsetWidth;s.classList.add(cls);setTimeout(()=>s.classList.remove(cls),150)
-  }
-  superFlash(){
-    if(this.settings.get("reduceFlashes"))return;
-    const el=document.createElement("i");el.className="super-flash";document.querySelector("#stage").appendChild(el);setTimeout(()=>el.remove(),260)
-  }
+  spark(def,type){this.renderer.spawnImpact(def,type);if(type!=="light")this.shake(type==="super"?"heavy":"medium")}
+  clashSpark(x,y){this.renderer.particles.burst(this.renderer.worldX(x),this.renderer.worldY(y),{count:18,color:"#87e9ff",secondary:"#ffffff",speed:4,life:20,size:3});this.audio.play("block")}
+  shake(level){if(!this.settings.get("reduceShake"))this.renderer.shake(level)}
+  superFlash(){if(!this.settings.get("reduceFlashes"))this.renderer.flash("super")}
   updateComboState(){
     if(this.comboTimer>0)this.comboTimer--;
     if(this.comboTimer<=0&&this.comboOwner){this.comboOwner.comboCount=0;this.comboOwner.comboDamage=0;this.comboOwner=null}
@@ -470,10 +447,11 @@ export class GameEngine{
     else{this.round++;this.resetRound()}
   }
   setDebug(v){this.debug=!!v}
+  restartMatch(){if(!this.p1||!this.p2)return;this.round=1;this.p1.wins=0;this.p2.wins=0;this.matchOver=false;this.resetRound(true)}
   resetTrainingPosition(){
     if(this.mode!=="training")return;
     const pos=document.querySelector("#trainingPosition")?.value||"center";
-    const pair=pos==="left"?[12,38]:pos==="right"?[62,88]:[28,72];
+    const pair=pos==="left"?[13,39]:pos==="right"?[61,87]:[32,68];
     const w1=this.p1.wins,w2=this.p2.wins;this.p1.resetRound(pair[0]);this.p2.resetRound(pair[1]);this.p1.wins=w1;this.p2.wins=w2;
     if((document.querySelector("#trainingMeter")?.value||"normal")==="infinite")this.p1.meter=this.p2.meter=100;
     this.projectiles=[];this.comboOwner=null;this.comboTimer=0;
