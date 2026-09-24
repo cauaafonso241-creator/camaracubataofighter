@@ -157,16 +157,20 @@ export class GameEngine{
   bufferInput(a,inp,side,fromReplay=false){
     if(!inp)return;
     const push=(type,ttl)=>{if(!a.buffer.some(q=>q.type===type&&q.expires>=this.frame))a.buffer.push({type,expires:this.frame+ttl})};
-    const both=inp.held.has("punch")&&inp.held.has("kick")&&(inp.pressed.has("punch")||inp.pressed.has("kick"));
-    const superInput=inp.held.has("heavy")&&inp.held.has("special")&&(inp.pressed.has("heavy")||inp.pressed.has("special"));
-    if(superInput||((inp.pressed.has("special")||inp.pressed.has("heavy"))&&this.input.motion(side,"doubleQcf",22)))push("super",8);
-    else if(both)push("throw",5);
+    const lp=inp.held.has("lightPunch"),lk=inp.held.has("lightKick");
+    const throwInput=lp&&lk&&(inp.pressed.has("lightPunch")||inp.pressed.has("lightKick"));
+    if(inp.pressed.has("super"))push("super",8);
+    else if(throwInput)push("throw",5);
     else{
-      if((inp.pressed.has("punch")||inp.pressed.has("kick"))&&this.input.motion(side,"qcf",16))push(inp.pressed.has("kick")?"specialB":"specialA",8);
-      else{
-        if(inp.pressed.has("punch"))push("jab",5);
-        if(inp.pressed.has("kick"))push(!a.onGround?"airKick":inp.held.has("down")?"lowKick":"kick",5);
-        if(inp.pressed.has("heavy"))push("heavy",5);
+      const punchPressed=inp.pressed.has("lightPunch")||inp.pressed.has("heavyPunch");
+      const kickPressed=inp.pressed.has("lightKick")||inp.pressed.has("heavyKick");
+      if((punchPressed||kickPressed)&&(this.input.motion(side,"qcf",16)||this.input.motion(side,"qcb",16))){
+        push(kickPressed?"specialB":"specialA",8);
+      }else{
+        if(inp.pressed.has("lightPunch"))push("jab",5);
+        if(inp.pressed.has("heavyPunch"))push("heavy",5);
+        if(inp.pressed.has("lightKick"))push(!a.onGround?"airKick":inp.held.has("down")?"lowKick":"kick",5);
+        if(inp.pressed.has("heavyKick"))push(!a.onGround?"airKick":"heavyKick",5);
         if(inp.pressed.has("special")&&this.settings.get("simpleSpecial"))push(inp.held.has("down")?"specialB":"specialA",8);
       }
     }
@@ -320,7 +324,7 @@ export class GameEngine{
     if(m.kind==="throw"){
       if(!def.onGround||!def.neutral()||Math.abs(att.x-def.x)>m.range)return false;
       const di=this.lastInput[def.side];
-      if(di&&di.held.has("punch")&&di.held.has("kick")&&(di.pressed.has("punch")||di.pressed.has("kick"))){
+      if(di&&di.held.has("lightPunch")&&di.held.has("lightKick")&&(di.pressed.has("lightPunch")||di.pressed.has("lightKick"))){
         this.announce("TECH!",400);att.x-=att.facing*1.8;def.x+=att.facing*1.8;this.audio.play("block");return true;
       }
       this.applyThrow(att,def,m);return true;
