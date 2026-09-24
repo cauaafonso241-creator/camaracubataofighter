@@ -94,6 +94,10 @@ export class InputManager{
     const h=this.history[player].slice(-windowFrames);let taps=0,was=false;
     for(const f of h){const now=f.dir===dir;if(now&&!was)taps++;was=now}return taps>=2;
   }
+  pressedWithin(player,actions,windowFrames=6){
+    const wanted=new Set(Array.isArray(actions)?actions:[actions]);
+    return this.history[player].slice(-windowFrames).some(f=>[...f.pressed].some(a=>wanted.has(a)));
+  }
   recentLabels(player="p1",count=20){
     const label={lightPunch:"LP",heavyPunch:"HP",lightKick:"LK",heavyKick:"HK",special:"SP",super:"SU"};
     return this.history[player].slice(-count).map(f=>{const a=[...f.pressed].map(x=>label[x]||"").filter(Boolean).join("+");return a?f.dir+"+"+a:f.dir}).filter((x,i,a)=>i===a.length-1||x!==a[i+1]);
