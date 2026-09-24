@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" shape-rendering="crispEdges">
+<rect width="960" height="540" fill="#101927"/>
+<rect x="0" y="38" width="960" height="330" fill="#d5ccb5"/>
+<g fill="#214a79"><rect x="0" y="38" width="8" height="330"/><rect x="96" y="38" width="8" height="330"/><rect x="192" y="38" width="8" height="330"/><rect x="288" y="38" width="8" height="330"/><rect x="384" y="38" width="8" height="330"/><rect x="480" y="38" width="8" height="330"/><rect x="576" y="38" width="8" height="330"/><rect x="672" y="38" width="8" height="330"/><rect x="768" y="38" width="8" height="330"/><rect x="864" y="38" width="8" height="330"/></g>
+<g fill="#fff1c6" opacity=".45"><polygon points="66,32 86,32 125,365 28,365"/><polygon points="266,32 286,32 330,365 220,365"/><polygon points="466,32 486,32 535,365 420,365"/><polygon points="666,32 686,32 735,365 620,365"/><polygon points="866,32 886,32 930,365 820,365"/></g>
+<g stroke="#131821" stroke-width="3"><line x1="160" y1="156" x2="160" y2="280"/><line x1="190" y1="156" x2="190" y2="280"/><line x1="220" y1="156" x2="220" y2="280"/></g>
+<g><polygon points="162,160 178,166 176,250 162,244" fill="#f2f2ee"/><polygon points="192,160 208,166 206,250 192,244" fill="#1f8a44"/><polygon points="222,160 238,166 236,250 222,244" fill="#f4f4ef"/></g>
+<g font-family="monospace" font-weight="900" text-anchor="middle" fill="#10264b"><text x="480" y="165" font-size="28">CÂMARA MUNICIPAL DE</text><text x="480" y="205" font-size="42">CUBATÃO</text></g>
+<g><path d="M465 102h30v22l-15 17-15-17z" fill="#26659a" stroke="#0e2b4a" stroke-width="3"/><rect x="476" y="106" width="8" height="26" fill="#f4e9b2"/><rect x="469" y="112" width="9" height="8" fill="#b53239"/><rect x="483" y="112" width="9" height="8" fill="#39945b"/></g>
+<g fill="#6f3f20" stroke="#3e2418" stroke-width="4"><rect x="230" y="292" width="500" height="94"/><rect x="0" y="320" width="205" height="76"/><rect x="755" y="320" width="205" height="76"/></g>
+<g fill="#10294b" stroke="#08111f" stroke-width="3"><rect x="278" y="270" width="34" height="28"/><rect x="340" y="270" width="34" height="28"/><rect x="402" y="270" width="34" height="28"/><rect x="524" y="270" width="34" height="28"/><rect x="586" y="270" width="34" height="28"/><rect x="648" y="270" width="34" height="28"/></g>
+<g fill="#205d42"><rect x="35" y="300" width="28" height="35"/><rect x="112" y="305" width="25" height="31"/><rect x="825" y="302" width="28" height="34"/><rect x="895" y="298" width="30" height="38"/></g>
+<rect x="0" y="394" width="960" height="146" fill="#d6cfb9"/>
+<g stroke="#9f9987" stroke-width="2"><line x1="0" y1="422" x2="960" y2="422"/><line x1="0" y1="455" x2="960" y2="455"/><line x1="0" y1="495" x2="960" y2="495"/><line x1="480" y1="394" x2="420" y2="540"/><line x1="480" y1="394" x2="540" y2="540"/><line x1="480" y1="394" x2="300" y2="540"/><line x1="480" y1="394" x2="660" y2="540"/><line x1="480" y1="394" x2="120" y2="540"/><line x1="480" y1="394" x2="840" y2="540"/></g>
+<g fill="#fff" opacity=".12"><polygon points="100,394 140,394 210,540 125,540"/><polygon points="380,394 410,394 440,540 392,540"/><polygon points="690,394 725,394 810,540 740,540"/></g>
+</svg>
