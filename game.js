@@ -15,6 +15,7 @@ const engine=new GameEngine({
 });
 
 ui=new UIController({engine,input,audio,settings});
+input.onDebug(()=>{if(engine.running){engine.setDebug(!engine.debug);const btn=document.querySelector("#debugBoxesBtn");if(btn)btn.classList.toggle("active",engine.debug)}});
 
 const criticalAssets=[
   ...fighters.map(f=>f.portrait),
