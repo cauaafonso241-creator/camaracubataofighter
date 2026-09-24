@@ -68,7 +68,9 @@ function poseFor(f,state,move,phase,frame){
   if(state==="IDLE"){p.bob=(Math.floor(tick/12)%2);p.frontArm[3]+=(Math.floor(tick/18)%2)}
   if(state==="WALK"){const s=Math.floor(tick/5)%2?1:-1;p.frontLeg=[6,-7,13*s,20];p.backLeg=[-6,-7,-13*s,20];p.frontArm=[7,-29,13*-s,-19];p.backArm=[-7,-29,-13*-s,-18]}
   if(state==="CROUCH"){p.crouch=1;p.bodyY=8;p.frontLeg=[7,-3,15,12];p.backLeg=[-7,-3,-12,14];p.frontArm=[7,-22,16,-14];p.backArm=[-7,-22,-15,-14]}
+  if(state==="JUMPSQUAT"){p.bodyY=5;p.frontLeg=[7,-5,12,12];p.backLeg=[-7,-5,-12,12];p.frontArm=[7,-26,15,-18];p.backArm=[-7,-26,-14,-19]}
   if(state==="AIRBORNE"){p.air=1;p.bodyRot=-.05;p.frontLeg=[7,-7,16,8];p.backLeg=[-7,-7,-13,5];p.frontArm=[7,-29,15,-32];p.backArm=[-7,-29,-13,-30]}
+  if(state==="LANDING"){p.bodyY=4;p.frontLeg=[7,-5,13,14];p.backLeg=[-7,-5,-11,14];p.frontArm=[7,-27,14,-18];p.backArm=[-7,-27,-13,-19]}
   if(state==="BLOCKSTUN"||state==="blocking"){p.frontArm=[7,-29,17,-39];p.backArm=[-7,-29,8,-41];p.bodyX=-2}
   if(state==="HITSTUN"||state==="THROWN"){p.bodyRot=-.12;p.bodyX=-4;p.frontArm=[7,-29,19,-13];p.backArm=[-7,-29,-18,-11]}
   if(state==="KNOCKDOWN"||state==="DEFEAT"){p.bodyRot=-1.12;p.bodyY=18;p.frontLeg=[7,-7,16,8];p.backLeg=[-7,-7,-13,6]}
