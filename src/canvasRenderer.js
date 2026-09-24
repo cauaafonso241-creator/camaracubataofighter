@@ -48,7 +48,7 @@ export class CanvasRenderer{
     this.resize();
     const e=this.engine,ctx=this.ctx,{w,h}=this.lastSize;
     const mid=(e.p1.x+e.p2.x)/2,dist=Math.abs(e.p2.x-e.p1.x);
-    const targetX=clamp(mid,46,54),targetZoom=clamp(1.075-(Math.max(0,dist-34)*.0035),.94,1.075);
+    const targetX=clamp(mid,46,54),baseZoom=clamp(1.09-(Math.max(0,dist-34)*.0038),.94,1.09),targetZoom=e.roundOver?Math.min(1.12,baseZoom+.035):baseZoom;
     this.camera.x=lerp(this.camera.x,targetX,.08);this.camera.zoom=lerp(this.camera.zoom,targetZoom,.07);
     let sx=0,sy=0;if(this.shakeFrames>0&&!e.settings.get("reduceShake")){const phase=this.shakeFrames%4;sx=(phase===0?-1:phase===1?1:phase===2?-.6:.6)*this.shakePower;sy=(phase%2?-.45:.45)*this.shakePower}
     ctx.save();ctx.translate(Math.round(sx),Math.round(sy));ctx.imageSmoothingEnabled=false;
@@ -72,12 +72,18 @@ export class CanvasRenderer{
     for(let x=80;x<w;x+=180){ctx.beginPath();ctx.moveTo(x-12,22);ctx.lineTo(x+12,22);ctx.lineTo(x+55,h*.76);ctx.lineTo(x-55,h*.76);ctx.closePath();ctx.fill()}
     ctx.restore();
   }
-  fighterScale(){return 2.95*this.camera.zoom}
+  fighterScale(){return 3.25*this.camera.zoom}
   drawFighters(ctx){
     const e=this.engine,gy=this.groundY(),ordered=[e.p1,e.p2].sort((a,b)=>a.x-b.x);
     for(const a of ordered){
-      const x=this.worldX(a.x),y=this.worldY(a.y),scale=this.fighterScale(),phase=e.phaseOf(a);
-      drawFighterShadow(ctx,x,gy,scale/2.95,a.y);
+      let x=this.worldX(a.x),y=this.worldY(a.y),scale=this.fighterScale(),phase=e.phaseOf(a);
+      // arcade entrance: fighters slide into the 35/65 composition before FIGHT
+      if(e.freezeRoundIntro>42){
+        const t=clamp((105-e.freezeRoundIntro)/63,0,1),ease=1-Math.pow(1-t,3);
+        const off=(1-ease)*(this.lastSize.w*.22);
+        x+=a.side==="p1"?-off:off;
+      }
+      drawFighterShadow(ctx,x,gy,scale/3.25,a.y);
       if(a.dashFrames>0){
         ctx.save();ctx.globalAlpha=.13;drawFighter(ctx,a.data,a,{x:x-a.facing*20,y,scale,facing:a.facing,phase,tick:e.frame-2});ctx.globalAlpha=.08;drawFighter(ctx,a.data,a,{x:x-a.facing*38,y,scale,facing:a.facing,phase,tick:e.frame-4});ctx.restore();
       }
@@ -106,21 +112,26 @@ export class CanvasRenderer{
     }
   }
   drawHUD(ctx,w,h){
-    const e=this.engine,top=9,portrait=58,center=w/2;
+    const e=this.engine,top=8,portrait=64,center=w/2;
     ctx.save();ctx.imageSmoothingEnabled=false;
-    ctx.fillStyle="#020815dd";ctx.fillRect(0,0,w,92);ctx.fillStyle="#19314f";ctx.fillRect(0,90,w,3);
-    this.hudPortrait(ctx,e.p1,12,10,portrait,false,"#2c8b53");
-    this.hudPortrait(ctx,e.p2,w-12-portrait,10,portrait,true,"#d39a18");
-    const leftX=82,leftEnd=center-58,rightX=center+58,rightEnd=w-82,barY=43,barH=18;
-    this.pixelText(ctx,e.p1.data.name.toUpperCase(),leftX,23,16,"left","#f5f7fa");
-    this.pixelText(ctx,e.p2.data.name.toUpperCase(),rightEnd,23,16,"right","#f5f7fa");
+    // layered metal/pixel HUD frame
+    ctx.fillStyle="#020713ee";ctx.fillRect(0,0,w,98);
+    ctx.fillStyle="#112742";ctx.fillRect(0,0,w,5);ctx.fillStyle="#335779";ctx.fillRect(0,5,w,2);
+    ctx.fillStyle="#182c47";ctx.fillRect(0,94,w,4);ctx.fillStyle="#050a12";ctx.fillRect(0,98,w,2);
+    this.hudPortrait(ctx,e.p1,10,10,portrait,false,"#2c8b53");
+    this.hudPortrait(ctx,e.p2,w-10-portrait,10,portrait,true,"#d39a18");
+    const leftX=84,leftEnd=center-66,rightX=center+66,rightEnd=w-84,barY=44,barH=20;
+    this.pixelText(ctx,e.p1.data.name.toUpperCase(),leftX,22,18,"left","#f5f7fa");
+    this.pixelText(ctx,e.p2.data.name.toUpperCase(),rightEnd,22,18,"right","#f5f7fa");
     this.healthBar(ctx,e.p1,leftX,barY,leftEnd-leftX,barH,false);
     this.healthBar(ctx,e.p2,rightX,barY,rightEnd-rightX,barH,true);
     this.energySegments(ctx,e.p1,leftX,68,leftEnd-leftX,false);
     this.energySegments(ctx,e.p2,rightX,68,rightEnd-rightX,true);
-    this.pixelText(ctx,String(Math.max(0,Math.ceil(e.roundFrames/60))).padStart(2,"0"),center,34,48,"center","#ffd13b","#451511");
-    this.pixelText(ctx,"ROUND "+e.round,center,74,10,"center","#d9e7f4");
-    this.roundPips(ctx,e.p1,leftX,83,false);this.roundPips(ctx,e.p2,rightEnd,83,true);
+    this.pixelText(ctx,String(Math.max(0,Math.ceil(e.roundFrames/60))).padStart(2,"0"),center,37,58,"center","#ffd13b","#4b1510");
+    this.pixelText(ctx,"ROUND "+e.round,center,81,10,"center","#d9e7f4");
+    this.roundPips(ctx,e.p1,leftX,86,false);this.roundPips(ctx,e.p2,rightEnd,86,true);
+    // subtle CRT/pixel scanlines over the gameplay, kept below UI readability threshold
+    ctx.globalAlpha=.035;ctx.fillStyle="#000";for(let yy=101;yy<h;yy+=4)ctx.fillRect(0,yy,w,1);ctx.globalAlpha=1;
     ctx.restore();
   }
   hudPortrait(ctx,a,x,y,size,flip,border){
