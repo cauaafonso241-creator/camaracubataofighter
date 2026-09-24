@@ -103,7 +103,7 @@
   </section>
 
   <section id="maps" class="screen">
-    <header class="topbar"><button class="back" id="mapBackBtn">← VOLTAR</button><div>SELEÇÃO DE ARENA</div><span>3 MAPAS</span></header>
+    <header class="topbar"><button class="back" id="mapBackBtn">← VOLTAR</button><div>SELEÇÃO DE ARENA</div><span id="mapCount">4 MAPAS</span></header>
     <div class="map-wrap">
       <p class="eyebrow center">ESCOLHA O PALCO DA LUTA</p>
       <h2>SELECIONE A <span>ARENA</span></h2>
@@ -142,12 +142,13 @@
       <h2>CONTROLES</h2>
       <div class="controls-table">
         <div><b>P1</b><span><kbd>A</kbd><kbd>D</kbd> mover • <kbd>W</kbd> pular • <kbd>S</kbd> agachar</span></div>
-        <div><b>Ataques</b><span><kbd>Z</kbd> soco • <kbd>X</kbd> chute • <kbd>B</kbd> pesado • <kbd>C</kbd> especial • <kbd>V</kbd> defesa</span></div>
-        <div><b>P2 local</b><span>Setas mover • <kbd>J</kbd> soco • <kbd>K</kbd> chute • <kbd>I</kbd> pesado • <kbd>L</kbd> especial • <kbd>;</kbd> defesa</span></div>
+        <div><b>Ataques P1</b><span><kbd>F</kbd> soco fraco • <kbd>G</kbd> soco forte • <kbd>V</kbd> chute fraco • <kbd>B</kbd> chute forte</span></div>
+        <div><b>Poderes P1</b><span><kbd>R</kbd> especial • <kbd>T</kbd> super</span></div>
+        <div><b>P2 local</b><span>Setas mover • Numpad 1/2 socos • Numpad 4/5 chutes • Numpad 7 especial • Numpad 8 super</span></div>
         <div><b>Dash</b><span>Toque duas vezes para frente ou para trás.</span></div>
         <div><b>Especial clássico</b><span>↓ ↘ → + soco/chute. O botão de especial simplificado também funciona.</span></div>
-        <div><b>Super</b><span>Com medidor cheio: pesado + especial ao mesmo tempo.</span></div>
-        <div><b>Agarrão</b><span>Soco + chute juntos a curta distância.</span></div>
+        <div><b>Super</b><span>Com o medidor cheio, pressione <kbd>T</kbd> no P1 ou Numpad 8 no P2.</span></div>
+        <div><b>Agarrão</b><span>Soco fraco + chute fraco juntos a curta distância.</span></div>
         <div><b>Pausa</b><span><kbd>Esc</kbd> / Start abre controles, reinício e menu.</span></div>
       </div>
       <div class="how-notes"><p><b>Defesa:</b> segure para trás para bloquear golpes altos/médios; para trás + baixo bloqueia golpes baixos.</p><p><b>Medidor:</b> enche durante a luta. Especial usa parte do medidor; Super custa 100.</p></div>
@@ -184,31 +185,8 @@
 
   <section id="arena" class="screen arena-screen">
     <div id="stage" class="stage">
-      <img id="stageBg" class="stage-bg" alt="">
-      <div class="parallax-glow"></div>
-      <div class="hud">
-        <div class="fighter-hud">
-          <div class="hud-top"><img id="p1HudImg" alt=""><div><span class="hud-side">P1</span><div class="hud-name" id="p1Name"></div></div></div>
-          <div class="health"><i id="p1Health"></i><em id="p1RedHealth"></em></div>
-          <div class="energy"><i id="p1Energy"></i></div><div class="round-wins" id="p1Wins"></div>
-        </div>
-        <div class="roundbox"><b id="timer">75</b><span id="roundLabel">ROUND 1</span></div>
-        <div class="fighter-hud right">
-          <div class="hud-top"><div><span class="hud-side" id="p2HudSide">CPU</span><div class="hud-name" id="p2Name"></div></div><img id="p2HudImg" alt=""></div>
-          <div class="health"><i id="p2Health"></i><em id="p2RedHealth"></em></div>
-          <div class="energy"><i id="p2Energy"></i></div><div class="round-wins" id="p2Wins"></div>
-        </div>
-      </div>
-      <div id="announcement" class="announcement"></div>
-      <div id="comboText" class="combo-text"></div>
-      <div id="counterText" class="counter-text"></div>
-      <div id="p1" class="fighter"><div class="sprite"></div><div class="shadow"></div></div>
-      <div id="p2" class="fighter enemy"><div class="sprite"></div><div class="shadow"></div></div>
-      <div id="projectileLayer" class="projectile-layer"></div>
-      <div id="vfxLayer" class="vfx-layer"></div>
-      <div id="debugLayer" class="debug-layer"></div>
-      <div class="floor"></div>
-      <div class="stage-name" id="stageName"></div>
+      <canvas id="fightCanvas" class="fight-canvas" width="960" height="540" aria-label="Arena de luta 2D em pixel art"></canvas>
+      <div id="fightStatus" class="sr-only" aria-live="polite"></div>
       <button id="pauseBtn" class="pause" aria-label="Pausar">Ⅱ</button>
       <div id="trainingPanel" class="training-panel hidden">
         <div class="training-title">TREINO</div>
@@ -227,7 +205,9 @@
         <button data-virt="left">◀</button><button data-virt="up">▲</button><button data-virt="right">▶</button><button data-virt="down">▼</button>
       </div>
       <div class="touch-actions">
-        <button data-virt="punch">P</button><button data-virt="kick">K</button><button data-virt="heavy">H</button><button data-virt="special" class="special">S</button><button data-virt="guard">G</button>
+        <button data-virt="lightPunch">LP</button><button data-virt="heavyPunch">HP</button>
+        <button data-virt="lightKick">LK</button><button data-virt="heavyKick">HK</button>
+        <button data-virt="special" class="special">SP</button><button data-virt="super" class="super">SU</button>
       </div>
     </div>
   </section>
@@ -238,10 +218,11 @@
       <div class="pause-actions">
         <button id="resumeBtn" class="primary">CONTINUAR</button>
         <button id="pauseControlsBtn" class="secondary">CONTROLES</button>
-        <button id="restartRoundBtn" class="secondary">REINICIAR ROUND</button>
+        <button id="restartRoundBtn" class="secondary">REINICIAR LUTA</button>
         <button id="changeFighterBtn" class="secondary">TROCAR PERSONAGEM</button>
         <button id="pauseSettingsBtn" class="secondary">ÁUDIO / TREMOR</button>
         <button id="pauseMenuBtn" class="secondary danger">MENU PRINCIPAL</button>
+        <button id="pauseExitBtn" class="secondary danger">SAIR</button>
       </div>
     </div>
   </div>
@@ -252,10 +233,12 @@
       <div class="controls-list">
         <div><span class="control-keys"><kbd>A</kbd><kbd>D</kbd></span><span>Mover P1</span></div>
         <div><span class="control-keys"><kbd>W</kbd><kbd>S</kbd></span><span>Pulo / agachar</span></div>
-        <div><span class="control-keys"><kbd>Z</kbd><kbd>X</kbd></span><span>Soco / chute</span></div>
-        <div><span class="control-keys"><kbd>C</kbd><kbd>V</kbd></span><span>Especial / defesa</span></div>
+        <div><span class="control-keys"><kbd>F</kbd><kbd>G</kbd></span><span>Socos P1</span></div>
+        <div><span class="control-keys"><kbd>V</kbd><kbd>B</kbd></span><span>Chutes P1</span></div>
+        <div><span class="control-keys"><kbd>R</kbd><kbd>T</kbd></span><span>Especial / Super P1</span></div>
         <div><span class="control-keys">← ↑ ↓ →</span><span>Mover P2</span></div>
-        <div><span class="control-keys"><kbd>J</kbd><kbd>K</kbd><kbd>L</kbd></span><span>Ataques P2</span></div>
+        <div><span class="control-keys">NUMPAD 1/2/4/5</span><span>Ataques P2</span></div>
+        <div><span class="control-keys">NUMPAD 7/8</span><span>Especial / Super P2</span></div>
         <div><span class="control-keys">🎮 D-pad + A/B/X/Y</span><span>Gamepad</span></div>
         <div><span class="control-keys">TOUCH</span><span>Direcional + P/K/H/S/G</span></div>
       </div>
