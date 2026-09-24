@@ -1,4 +1,5 @@
-import {fighters,maps,createCharacterMoves,difficulty,projectileGlyph,projectileTypes} from "./data.js";
+import {fighters,maps,createCharacterMoves,difficulty} from "./data.js";
+import {CanvasRenderer} from "./canvasRenderer.js";
 
 const FIXED_DT=1/60;
 const WORLD_LEFT=6.5,WORLD_RIGHT=93.5,Y_SCALE=1.6;
@@ -68,90 +69,10 @@ class AIController{
   }
 }
 
-class Renderer{
-  constructor(engine){
-    this.engine=engine;
-    this.stage=document.querySelector("#stage");
-    this.fighterEls={p1:document.querySelector("#p1"),p2:document.querySelector("#p2")};
-    this.projectileLayer=document.querySelector("#projectileLayer");
-    this.vfxLayer=document.querySelector("#vfxLayer");
-    this.debugLayer=document.querySelector("#debugLayer");
-  }
-  render(){
-    const e=this.engine;if(!e.p1||!e.p2)return;
-    this.renderFighter("p1",e.p1);this.renderFighter("p2",e.p2);
-    this.renderHUD();this.renderProjectiles();this.renderDebug();
-    const mid=(e.p1.x+e.p2.x)/2,shift=clamp((50-mid)*.08,-2.2,2.2);
-    this.stage.style.setProperty("--camera-shift",shift+"%");
-  }
-  renderFighter(id,a){
-    const el=this.fighterEls[id];if(!el)return;
-    el.style.left=a.x+"%";el.style.bottom=`calc(var(--stage-floor) + ${(a.y*Y_SCALE).toFixed(2)}%)`;
-    const classes=["fighter"];if(id==="p2")classes.push("enemy");
-    if(a.state===STATES.WALK)classes.push("walking");
-    if(a.state===STATES.CROUCH)classes.push("crouching");
-    if(a.state===STATES.AIRBORNE)classes.push("airborne");
-    if(a.state===STATES.HITSTUN||a.state===STATES.THROWN)classes.push("hit");
-    if(a.state===STATES.KNOCKDOWN)classes.push("knockdown");
-    if(a.state===STATES.VICTORY)classes.push("victory");
-    if(a.state===STATES.DEFEAT)classes.push("defeat");
-    if(a.blocking||a.state===STATES.BLOCKSTUN)classes.push("blocking");
-    if(a.dashFrames>0)classes.push("dashing");
-    if(a.move){
-      const idm=a.move.id;
-      if(idm==="jab")classes.push("attack");
-      else if(idm==="kick"||idm==="airKick")classes.push("kick");
-      else if(idm==="heavy")classes.push("heavy");
-      else if(idm==="lowKick")classes.push("lowkick");
-      else if(idm==="specialA"||idm==="specialB")classes.push("specialFx");
-      else if(idm==="super")classes.push("superFx");
-    }
-    el.className=classes.join(" ");
-    el.dataset.phase=this.engine.phaseOf(a);
-    el.dataset.special=a.data.type;
-  }
-  renderHUD(){
-    const e=this.engine;
-    for(const [id,a] of [["p1",e.p1],["p2",e.p2]]){
-      const life=document.querySelector("#"+id+"Health"),red=document.querySelector("#"+id+"RedHealth"),meter=document.querySelector("#"+id+"Energy");
-      if(life)life.style.width=(a.hp/10)+"%";
-      if(red)red.style.width=(a.redHp/10)+"%";
-      if(meter)meter.style.width=a.meter+"%";
-    }
-    document.querySelector("#p1Wins").textContent="●".repeat(e.p1.wins);
-    document.querySelector("#p2Wins").textContent="●".repeat(e.p2.wins);
-    document.querySelector("#timer").textContent=Math.max(0,Math.ceil(e.roundFrames/60));
-    if(e.mode==="training"){
-      const fd=document.querySelector("#frameDataText"),cd=document.querySelector("#comboDamageText"),inp=document.querySelector("#inputDisplay");
-      if(fd)fd.textContent=e.p1.move?`${e.p1.move.id.toUpperCase()} • ${e.phaseOf(e.p1)} • F${e.p1.moveFrame}`:e.p1.state;
-      if(cd)cd.textContent=`DANO: ${e.p1.comboDamage}`;
-      if(inp)inp.innerHTML=e.input.recentLabels("p1",20).map(x=>`<span class="input-chip">${x}</span>`).join("");
-    }
-  }
-  renderProjectiles(){
-    this.projectileLayer.innerHTML=this.engine.projectiles.map(p=>`<span class="projectile ${p.css}" style="left:${p.x}%;bottom:calc(var(--stage-floor) + ${(p.y*Y_SCALE).toFixed(2)}%)"><i></i></span>`).join("");
-  }
-  renderDebug(){
-    if(!this.engine.debug){this.debugLayer.innerHTML="";return}
-    const boxes=[];
-    for(const [id,a] of [["P1",this.engine.p1],["P2",this.engine.p2]]){
-      const h=this.engine.hurtbox(a),p=this.engine.pushbox(a);
-      boxes.push(this.box(h,"hurt"),this.box(p,"push"));
-      if(a.move&&this.engine.phaseOf(a)==="ACTIVE"&&!a.move.projectile){
-        const hb=this.engine.hitbox(a,a.move);if(hb)boxes.push(this.box(hb,a.move.kind==="throw"?"throw":"hit"));
-      }
-      boxes.push(`<span class="debug-label" style="left:${a.x}%;bottom:calc(var(--stage-floor) + ${((a.y+20)*Y_SCALE).toFixed(2)}%)">${id} ${a.state}${a.move?" "+a.move.id+" F"+a.moveFrame:""}</span>`);
-    }
-    for(const pr of this.engine.projectiles)boxes.push(this.box({x:pr.x-pr.w/2,y:pr.y-pr.h/2,w:pr.w,h:pr.h},"projectile-box"));
-    this.debugLayer.innerHTML=boxes.join("");
-  }
-  box(b,cls){return `<i class="debug-box ${cls}" style="left:${b.x}%;width:${b.w}%;bottom:calc(var(--stage-floor) + ${(b.y*Y_SCALE).toFixed(2)}%);height:${(b.h*Y_SCALE).toFixed(2)}%"></i>`}
-}
-
 export class GameEngine{
   constructor({input,audio,settings,onMatchEnd=()=>{},onRoundEnd=()=>{}}){
     this.input=input;this.audio=audio;this.settings=settings;this.onMatchEnd=onMatchEnd;this.onRoundEnd=onRoundEnd;
-    this.renderer=new Renderer(this);this.running=false;this.paused=false;this.raf=0;this.lastTime=0;this.acc=0;this.frame=0;this.hitstop=0;
+    this.renderer=new CanvasRenderer(this);this.running=false;this.paused=false;this.raf=0;this.lastTime=0;this.acc=0;this.frame=0;this.hitstop=0;
     this.p1=null;this.p2=null;this.projectiles=[];this.projectileId=0;this.mode="quick";this.config=null;this.debug=false;
     this.ai=null;this.round=1;this.roundFrames=75*60;this.roundOver=false;this.matchOver=false;this.freezeRoundIntro=0;
     this.comboOwner=null;this.comboTimer=0;this.roundEndFrames=0;this.roundWinner=null;this.roundReason="";this.recording=false;this.recorded=[];this.replaying=false;this.replayIndex=0;
