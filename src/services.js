@@ -43,6 +43,13 @@ export class AudioManager{
     const value=Number(v);this.settings.set(name+"Volume",value);
     const g=name==="music"?this.musicGain:name==="ui"?this.uiGain:this.sfxGain;if(g)g.gain.value=value;
   }
+  setGameplayPaused(paused){
+    if(!this.ensure())return;
+    const now=this.ctx.currentTime;
+    const music=paused?0:Number(this.settings.get("musicVolume")??.22),sfx=paused?0:Number(this.settings.get("sfxVolume")??.72);
+    this.musicGain.gain.cancelScheduledValues(now);this.sfxGain.gain.cancelScheduledValues(now);
+    this.musicGain.gain.setTargetAtTime(music,now,.02);this.sfxGain.gain.setTargetAtTime(sfx,now,.02);
+  }
   tone({freq=220,duration=.06,type="square",gain=.08,slide=0,group="sfx"}={}){
     const ctx=this.ensure();if(!ctx||!this.enabled)return;
     if(ctx.state==="suspended")ctx.resume().catch(()=>{});
