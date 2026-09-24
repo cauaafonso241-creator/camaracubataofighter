@@ -35,9 +35,10 @@ export class UIController{
     $("#pauseControlsBtn").onclick=()=>this.openPauseControls();
     $("#backToPauseBtn").onclick=()=>this.backToPause();
     $("#closeControlsBtn").onclick=()=>this.closePause();
-    $("#restartRoundBtn").onclick=()=>this.askConfirm("REINICIAR ROUND?","Vida, posição, tempo e medidor deste round serão reiniciados.",()=>{this.engine.resetRound();this.closePause()});
+    $("#restartRoundBtn").onclick=()=>this.askConfirm("REINICIAR LUTA?","Rounds, vida, posições, tempo e medidores serão reiniciados.",()=>{this.engine.restartMatch();this.closePause()});
     $("#changeFighterBtn").onclick=()=>this.askConfirm("TROCAR PERSONAGEM?","A luta atual será encerrada e você voltará à seleção.",()=>{this.engine.stop();this.hideOverlays();this.beginSelection()});
     $("#pauseMenuBtn").onclick=()=>this.askConfirm("VOLTAR AO MENU?","A luta atual será encerrada.",()=>{this.engine.stop();this.hideOverlays();this.show("home")});
+    $("#pauseExitBtn").onclick=()=>this.askConfirm("SAIR DA PARTIDA?","Você voltará à tela inicial e a luta será encerrada.",()=>{this.engine.stop();this.hideOverlays();this.show("home")});
     $("#pauseSettingsBtn").onclick=()=>this.openQuickSettings();
     $("#backFromQuickSettings").onclick=()=>{this.saveQuickSettings();$("#quickSettingsOverlay").classList.add("hidden");$("#pauseOverlay").classList.remove("hidden")};
     $("#confirmNo").onclick=()=>{$("#confirmOverlay").classList.add("hidden");this.pendingConfirm=null};
@@ -119,6 +120,7 @@ export class UIController{
     this.beginSelection();
   }
   renderMaps(){
+    $("#mapCount").textContent=maps.length+" MAPAS";
     $("#mapGrid").innerHTML=maps.map((m,i)=>`<button class="map-card ${i===this.selectedMap?"active":""}" data-map="${i}"><img src="${m.src}" alt="${m.name}"><span><b>${m.name}</b><small>${m.subtitle}</small></span></button>`).join("");
     $$(".map-card").forEach(b=>b.onclick=()=>{this.selectedMap=Number(b.dataset.map);this.renderMaps()});
     const m=maps[this.selectedMap];$("#mapInfo").innerHTML=`<b>${m.name}</b><span>${m.subtitle}</span>`;
@@ -131,12 +133,12 @@ export class UIController{
   }
   setupTournament(){
     const used=[];this.tournament.opponents=[];
-    for(let i=0;i<3;i++){const o=chooseOpponent(this.config.p1Index,used);used.push(o);this.tournament.opponents.push(o)}
+    for(let i=0;i<4;i++){const o=chooseOpponent(this.config.p1Index,used);used.push(o);this.tournament.opponents.push(o)}
     this.tournament.active=true;this.tournament.round=0;
   }
   renderTournament(){
-    const labels=["QUARTAS DE FINAL","SEMIFINAL","FINAL"];$("#tournamentTitle").innerHTML=`${labels[this.tournament.round]} <span>•</span>`;
-    $("#bracket").innerHTML=this.tournament.opponents.map((idx,i)=>`<div class="bracket-round ${i<this.tournament.round?"done":i===this.tournament.round?"current":"future"}"><small>${["LUTA 1","LUTA 2","FINAL"][i]}</small><div class="bracket-match"><span>${fighters[this.config.p1Index].name}</span><b>VS</b><span>${fighters[idx].name}</span></div></div>`).join("");
+    const labels=["OITAVAS DE FINAL","QUARTAS DE FINAL","SEMIFINAL","FINAL"];$("#tournamentTitle").innerHTML=`${labels[this.tournament.round]} <span>•</span>`;
+    $("#bracket").innerHTML=this.tournament.opponents.map((idx,i)=>`<div class="bracket-round ${i<this.tournament.round?"done":i===this.tournament.round?"current":"future"}"><small>${["OITAVAS","QUARTAS","SEMIFINAL","FINAL"][i]}</small><div class="bracket-match"><span>${fighters[this.config.p1Index].name}</span><b>VS</b><span>${fighters[idx].name}</span></div></div>`).join("");
   }
   prepareVs(){
     const p1=fighters[this.config.p1Index],p2=fighters[this.config.p2Index],m=maps[this.config.mapIndex];
@@ -155,7 +157,7 @@ export class UIController{
     if(this.gameMode==="training")return;
     $("#modal").classList.add("show");
     if(this.gameMode==="tournament"){
-      if(p1Won&&this.tournament.round<2){
+      if(p1Won&&this.tournament.round<3){
         $("#modalKicker").textContent="TORNEIO";$("#modalTitle").textContent="CLASSIFICADO!";$("#modalText").textContent="Você avançou para a próxima fase.";
         $("#rematch").textContent="PRÓXIMA LUTA";$("#rematch").onclick=()=>{this.hideResult();this.engine.stop();this.tournament.round++;this.config.p2Index=this.tournament.opponents[this.tournament.round];this.selectedMap=(this.selectedMap+1)%maps.length;this.config.mapIndex=this.selectedMap;this.renderTournament();this.show("tournament")};
       }else if(p1Won){
