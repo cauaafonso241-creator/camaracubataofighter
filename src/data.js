@@ -30,37 +30,37 @@ export const projectileTypes=new Set(["ball","water","process","dumbbell","sonic
 
 export const MOVE_TEMPLATES={
   jab:{
-    id:"jab",kind:"normal",startup:4,active:3,recovery:7,damage:42,hitstun:12,blockstun:8,hitstop:5,
+    id:"jab",kind:"normal",startup:4,active:3,recovery:7,damage:42,hitstun:12,blockstun:8,hitstop:4,
     hitLevel:"mid",meterGain:5,pushHit:.85,pushBlock:.55,range:6.2,cancelStart:4,cancelEnd:9,
     cancelOnHit:["jab","heavy","kick","specialA","specialB"],cancelOnBlock:["specialA"],knockdown:false
   },
   kick:{
-    id:"kick",kind:"normal",startup:6,active:4,recovery:10,damage:55,hitstun:14,blockstun:9,hitstop:6,
+    id:"kick",kind:"normal",startup:6,active:4,recovery:10,damage:55,hitstun:14,blockstun:9,hitstop:5,
     hitLevel:"mid",meterGain:6,pushHit:1.05,pushBlock:.65,range:8.1,cancelStart:6,cancelEnd:10,
     cancelOnHit:["heavyKick","specialA","specialB"],cancelOnBlock:["specialA"],knockdown:false
   },
   heavyKick:{
-    id:"heavyKick",kind:"normal",startup:10,active:4,recovery:18,damage:110,hitstun:21,blockstun:13,hitstop:10,
+    id:"heavyKick",kind:"normal",startup:10,active:4,recovery:18,damage:110,hitstun:21,blockstun:13,hitstop:7,
     hitLevel:"mid",meterGain:10,pushHit:2.35,pushBlock:1.0,range:11.5,cancelStart:10,cancelEnd:15,
     cancelOnHit:["specialA","specialB","super"],cancelOnBlock:[],knockdown:true,knockbackY:.34
   },
   heavy:{
-    id:"heavy",kind:"normal",startup:9,active:4,recovery:19,damage:105,hitstun:22,blockstun:14,hitstop:10,
+    id:"heavy",kind:"normal",startup:9,active:4,recovery:19,damage:105,hitstun:22,blockstun:14,hitstop:7,
     hitLevel:"mid",meterGain:11,pushHit:2.4,pushBlock:1.1,range:9.0,cancelStart:9,cancelEnd:15,
     cancelOnHit:["specialA","specialB","super"],cancelOnBlock:[],knockdown:true,knockbackY:.28
   },
   lowKick:{
-    id:"lowKick",kind:"normal",startup:5,active:3,recovery:9,damage:40,hitstun:12,blockstun:8,hitstop:5,
+    id:"lowKick",kind:"normal",startup:5,active:3,recovery:9,damage:40,hitstun:12,blockstun:8,hitstop:4,
     hitLevel:"low",meterGain:5,pushHit:.8,pushBlock:.5,range:7.5,cancelStart:5,cancelEnd:9,
     cancelOnHit:["jab","specialA"],cancelOnBlock:[],knockdown:false
   },
   airKick:{
-    id:"airKick",kind:"air",startup:5,active:9,recovery:6,damage:58,hitstun:15,blockstun:10,hitstop:6,
+    id:"airKick",kind:"air",startup:5,active:9,recovery:6,damage:58,hitstun:15,blockstun:10,hitstop:5,
     hitLevel:"high",meterGain:6,pushHit:1.15,pushBlock:.75,range:8.0,cancelStart:0,cancelEnd:0,
     cancelOnHit:[],cancelOnBlock:[],knockdown:false
   },
   throw:{
-    id:"throw",kind:"throw",startup:5,active:2,recovery:19,damage:95,hitstun:0,blockstun:0,hitstop:8,
+    id:"throw",kind:"throw",startup:5,active:2,recovery:19,damage:95,hitstun:0,blockstun:0,hitstop:7,
     hitLevel:"throw",meterGain:8,pushHit:3.2,pushBlock:0,range:4.2,cancelStart:0,cancelEnd:0,
     cancelOnHit:[],cancelOnBlock:[],knockdown:true
   }
@@ -70,18 +70,18 @@ export function createCharacterMoves(fighter){
   const ranged=projectileTypes.has(fighter.type);
   const specialA={
     id:"specialA",name:fighter.power,kind:ranged?"projectile":"special",startup:9,active:ranged?3:6,recovery:22,
-    damage:112,hitstun:24,blockstun:15,hitstop:8,hitLevel:"mid",meterGain:8,meterCost:0,pushHit:2.4,pushBlock:1.15,
+    damage:112,hitstun:24,blockstun:15,hitstop:7,hitLevel:"mid",meterGain:8,meterCost:0,pushHit:2.4,pushBlock:1.15,
     range:ranged?5.5:12.5,cancelStart:10,cancelEnd:16,cancelOnHit:["super"],cancelOnBlock:[],knockdown:false,
     projectile:ranged?{speed:1.05,lifetime:95,width:3.2,height:3.0,durability:1}:null
   };
   const specialB={
     id:"specialB",name:fighter.specialB,kind:"special",startup:10,active:7,recovery:21,damage:128,hitstun:27,blockstun:16,
-    hitstop:10,hitLevel:"mid",meterGain:9,meterCost:0,pushHit:3.2,pushBlock:1.4,range:10.8,cancelStart:10,cancelEnd:18,
+    hitstop:7,hitLevel:"mid",meterGain:9,meterCost:0,pushHit:3.2,pushBlock:1.4,range:10.8,cancelStart:10,cancelEnd:18,
     cancelOnHit:["super"],cancelOnBlock:[],knockdown:true,movement:4.4,knockbackY:.38
   };
   const superMove={
     id:"super",name:fighter.super,kind:ranged?"superProjectile":"super",startup:7,active:ranged?8:10,recovery:30,
-    damage:245,hitstun:38,blockstun:22,hitstop:15,hitLevel:"mid",meterGain:0,meterCost:100,pushHit:5.8,pushBlock:2.35,
+    damage:245,hitstun:38,blockstun:22,hitstop:10,hitLevel:"mid",meterGain:0,meterCost:100,pushHit:5.8,pushBlock:2.35,
     range:ranged?6:15,cancelStart:0,cancelEnd:0,cancelOnHit:[],cancelOnBlock:[],knockdown:true,knockbackY:.55,
     projectile:ranged?{speed:1.38,lifetime:110,width:5.3,height:4.2,durability:2}:null
   };
