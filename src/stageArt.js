@@ -5,6 +5,7 @@ const C={
 };
 const rect=(c,x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))};
 const line=(c,x1,y1,x2,y2,col,w=1)=>{c.strokeStyle=col;c.lineWidth=w;c.beginPath();c.moveTo(Math.round(x1),Math.round(y1));c.lineTo(Math.round(x2),Math.round(y2));c.stroke()};
+const circle=(c,x,y,r,fill,stroke=null,lw=1)=>{c.fillStyle=fill;c.beginPath();c.arc(Math.round(x),Math.round(y),r,0,Math.PI*2);c.fill();if(stroke){c.strokeStyle=stroke;c.lineWidth=lw;c.stroke()}};
 const poly=(c,pts,col)=>{c.fillStyle=col;c.beginPath();c.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)c.lineTo(pts[i][0],pts[i][1]);c.closePath();c.fill()};
 const txt=(c,t,x,y,size,col="#fff",align="center",font="900")=>{c.fillStyle=col;c.textAlign=align;c.textBaseline="middle";c.font=`${font} ${size}px "Arial Black",monospace`;c.fillText(t,Math.round(x),Math.round(y))};
 
