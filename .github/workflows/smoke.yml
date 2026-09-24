@@ -6,9 +6,28 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm test
+      - name: Static smoke
+        run: npm test
+      - name: Install browser test runtime
+        run: |
+          npm install --no-save playwright@1.57.0
+          npx playwright install --with-deps chromium
+      - name: Start static server
+        run: |
+          python3 -m http.server 3000 > /tmp/ccf-server.log 2>&1 &
+          sleep 2
+      - name: Browser smoke
+        run: node tests/browser-smoke.mjs
+      - name: Upload fight screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-smoke-fight
+          path: test-artifacts/fight.png
+          if-no-files-found: ignore
