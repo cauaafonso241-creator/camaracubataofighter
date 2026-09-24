@@ -343,3 +343,24 @@ body.reduce-flash .super-flash{display:none}
 .drawn-head .glasses-frame,.drawn-head .glasses-bridge{display:none;position:absolute;z-index:6}.drawn-head.has-glasses .glasses-frame{display:block;top:37px;width:27px;height:20px;border:3px solid #18202a;border-radius:5px;background:#9ad7ff16}.drawn-head.has-glasses .glasses-left{left:8px}.drawn-head.has-glasses .glasses-right{right:8px}.drawn-head.has-glasses .glasses-bridge{display:block;left:34px;top:45px;width:20px;height:3px;background:#18202a}
 .fighter.attack[data-phase="active"] .drawn-head,.fighter.heavy[data-phase="active"] .drawn-head,.fighter.kick[data-phase="active"] .drawn-head{transform:rotate(-5deg) translateY(-1px)}
 .fighter.hit .drawn-head{filter:brightness(1.2) saturate(.75)}
+
+
+/* ===== CANVAS ARCADE RENDERER ===== */
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.screen.active{animation:screenIn .18s steps(4,end)}
+@keyframes screenIn{from{opacity:.15;filter:brightness(1.5)}to{opacity:1;filter:none}}
+.arena-screen{background:#02050a;overflow:hidden}
+.stage{position:relative;width:100vw;height:100dvh;min-height:420px;overflow:hidden;background:#050910;touch-action:none;isolation:isolate}
+.fight-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;image-rendering:pixelated;image-rendering:crisp-edges;background:#050910}
+.arena-screen .pause{position:absolute;right:14px;bottom:14px;z-index:90;width:46px;height:46px;border:3px solid #dceaff;border-radius:2px;background:#07101dcc;color:#fff;font:900 18px monospace;box-shadow:4px 4px 0 #000}
+.training-panel{z-index:95}
+.mobile-controls{z-index:96}
+.touch-actions{grid-template-columns:repeat(3,56px);grid-template-rows:repeat(2,56px)}
+.touch-actions .super{background:#76213bc7;border-color:#ffde55;color:#fff5ba}
+.touch-actions button{font-size:12px}
+.char .avatar img,.big-avatar .avatar img{image-rendering:auto}
+.map-card img{image-rendering:pixelated}
+@media(max-width:900px){
+  .stage{min-height:360px}
+  .arena-screen .pause{bottom:78px}
+}
