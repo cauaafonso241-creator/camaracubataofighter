@@ -140,8 +140,8 @@ export function drawFighterShadow(ctx,x,y,scale=1,air=0){
   const shrink=clamp(1-air*.018,.45,1);ctx.save();ctx.globalAlpha=.35;ctx.fillStyle="#05070a";ctx.beginPath();ctx.ellipse(Math.round(x),Math.round(y),Math.round(34*scale*shrink),Math.round(7*scale*shrink),0,0,Math.PI*2);ctx.fill();ctx.restore();
 }
 export function drawPixelPortrait(ctx,f,x,y,size=56,flip=false){
-  ctx.save();ctx.imageSmoothingEnabled=false;ctx.translate(Math.round(x+size/2),Math.round(y+size*.82));ctx.scale(flip?-.95:.95,.95);
-  const fake={state:"IDLE",move:null};drawSuit(ctx,f,poseFor(f,"IDLE",null,"",0));drawFace(ctx,f);drawHairTrail(ctx,f);drawProp(ctx,f,null);ctx.restore();
+  const sc=size/92;ctx.save();ctx.imageSmoothingEnabled=false;ctx.translate(Math.round(x+size/2),Math.round(y+size*.92));ctx.scale(flip?-sc:sc,sc);
+  drawSuit(ctx,f,poseFor(f,"IDLE",null,"",0));drawFace(ctx,f);drawHairTrail(ctx,f);drawProp(ctx,f,null);ctx.restore();
 }
 export function drawProjectile(ctx,p,screenX,screenY){
   const t=p.owner.data.type,superShot=p.move?.id==="super";ctx.save();ctx.translate(Math.round(screenX),Math.round(screenY));ctx.scale(superShot?1.35:1,superShot?1.35:1);
